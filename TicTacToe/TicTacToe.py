@@ -6,7 +6,7 @@ class GameBoard:
         self.turnNumber = 0
 
     def increment_board(self):
-        self.turnNumber += 1
+        self.turnNumber = (self.turnNumber + 1) % 2
 
     def print_board(self):
         for i in range(3):
@@ -23,14 +23,8 @@ class GameBoard:
         return False
 
     def place_piece(self, coord):
-        if (self.is_valid_move(coord)):
-            if (self.turnNumber % 2 == 0):
-                self.set_coord(coord, self.pieces[0])
-                self.increment_board()
-            else:
-                self.set_coord(coord, self.pieces[1])
-                self.increment_board()    
-        return None
+            self.set_coord(coord, self.pieces[self.turnNumber])
+            self.increment_board()
 
 gb = GameBoard()
 
