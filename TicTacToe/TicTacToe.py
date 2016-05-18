@@ -5,7 +5,7 @@ class GameBoard:
         self.pieces = ["O", "X"]
         self.turnNumber = 0
 
-    def increment_board(self):
+    def switch_turn(self):
         self.turnNumber = (self.turnNumber + 1) % 2
 
     def print_board(self):
@@ -24,9 +24,9 @@ class GameBoard:
 
     def place_piece(self, coord):
         self.set_coord(coord, self.pieces[self.turnNumber])
-        self.increment_board()
+        self.switch_turn()
 
-    def check_for_win(self, piece):
+    def has_won(self, piece):
         for i in range(3):
             if (self.board[i][0] == piece and self.board[i][1] == piece and self.board[i][2] == piece):
                 return True
