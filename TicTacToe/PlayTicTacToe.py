@@ -5,7 +5,7 @@ def play_tic_tac_toe():
     gb = GameBoard()
     coord = [3,3]
 
-    while not gb.has_won(gb.pieces[gb.turnNumber]):
+    while (not gb.has_won(gb.pieces[gb.turnNumber]) and not gb.is_tie()):
         gb.switch_turn()
         gb.print_board()
 
@@ -21,6 +21,9 @@ def play_tic_tac_toe():
         gb.place_piece(coord)
 
     gb.print_board()
-    print("%ss Won the game!" %gb.pieces[gb.turnNumber])
+    if gb.is_tie():
+        print("Xs and Os Tied!")
+    else:
+        print("%ss Won the game!" %gb.pieces[gb.turnNumber])
 
 play_tic_tac_toe()
