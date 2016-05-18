@@ -23,7 +23,7 @@ class GameBoard:
         self.board[coord[0]][coord[1]] = piece
 
     def is_valid_move(self, coord):
-        if (coord[0] and coord[1] in [0, 1, 2]):
+        if (coord[0] in [0, 1, 2] and coord[1] in [0, 1, 2]):
             if (self.board[coord[0]][coord[1]] == "-"):
                 return True
 
@@ -31,7 +31,6 @@ class GameBoard:
 
     def place_piece(self, coord):
         self.set_coord(coord, self.pieces[self.turnNumber])
-        self.switch_turn()
 
     def has_won(self, piece):
         for i in range(3):
