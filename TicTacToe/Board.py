@@ -1,7 +1,7 @@
 class GameBoard:
 
     def __init__(self):
-        self.board = [[None for i in range(3)] for j in range(3)]
+        self.board = [["-" for i in range(3)] for j in range(3)]
         self.pieces = ["O", "X"]
         self.turnNumber = 0
 
@@ -12,12 +12,19 @@ class GameBoard:
         for i in range(3):
             print(self.board[i])
 
+    def to_string_one_line(self):
+        s = ""
+        for i in range(3):
+            for j in range(3):
+                s = s + self.board[i][j]
+        return s
+
     def set_coord(self, coord, piece):
         self.board[coord[0]][coord[1]] = piece
 
     def is_valid_move(self, coord):
-        if (coord[0] and coord[1]  in [0, 1, 2]):
-            if (self.board[coord[0]][coord[1]] == None):
+        if (coord[0] and coord[1] in [0, 1, 2]):
+            if (self.board[coord[0]][coord[1]] == "-"):
                 return True
 
         return False
