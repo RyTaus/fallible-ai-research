@@ -1,4 +1,4 @@
-from TicTacToe import GameBoard
+from Board import GameBoard
 
 def test_is_valid_move():
     print("Testing is_valid_move...")
