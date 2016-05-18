@@ -44,3 +44,20 @@ class GameBoard:
             return True
 
         return False
+
+    def is_tie(self):
+        for i in range(3):
+            for j in range(3):
+                if self.board[i][j] == "-":
+                    return False
+
+        return True
+
+    def get_results(self):
+        if self.is_tie():
+            return "-"
+        if self.has_won("O"):
+            return "O"
+        if self.has_won("X"):
+            return "X"
+        return None
