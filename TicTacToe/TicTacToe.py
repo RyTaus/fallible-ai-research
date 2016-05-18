@@ -23,17 +23,18 @@ class GameBoard:
         return False
 
     def place_piece(self, coord):
-            self.set_coord(coord, self.pieces[self.turnNumber])
-            self.increment_board()
+        self.set_coord(coord, self.pieces[self.turnNumber])
+        self.increment_board()
 
-gb = GameBoard()
+    def check_for_win(self, piece):
+        for i in range(3):
+            if (self.board[i][0] == piece and self.board[i][1] == piece and self.board[i][2] == piece):
+                return True
+            if (self.board[0][i] == piece and self.board[1][i] == piece and self.board[2][i] == piece):
+                return True
+        if (self.board[0][0] == piece and self.board[1][1] == piece and self.board[2][2] == piece):
+            return True
+        if (self.board[2][0] == piece and self.board[1][1] == piece and self.board[0][2] == piece):
+            return True
 
-print(gb.is_valid_move([1, 3]))
-
-gb.place_piece([1,1])
-
-gb.place_piece([1,2])
-
-print(gb.turnNumber)
-
-gb.print_board()
+        return False
