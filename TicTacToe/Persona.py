@@ -1,4 +1,5 @@
 from random import randint
+from random import random
 from Board import GameBoard
 import math
 
@@ -24,13 +25,13 @@ class Persona:
             split = []
             # print(file.read())
             for line in file.readlines():
-                print(line)
+                # print(line)
                 split = line.split(" ")
                 split[2] = split[2][:-1]
-                print(split)
+                # print(split)
                 mem[split[0]] = (float(split[1]), float(split[2]))
         file.close()
-        print(mem)
+        # print(mem)
         return mem
 
 
@@ -76,37 +77,55 @@ class Persona:
         self.TIEWORTH = .7
 
     # default operations of a "player"
+    def Q(self, board):
+        if board in self.memory:
+            prevQ = self.memory[board][0]
+        else:
+            prevQ = self.UNRESEARCHEDBOARDVALUE
+        return prevQ
+
+
+    def evaluate_option(self, board, temp):
+        top = math.e ** (self.Q(board) / temp)
+        return top
 
     def evaluate_options(self):
+        Temperature = 5
         currWinner = None
         editBoard = GameBoard()
         editBoard.board = self.copy_board(self.currBoard)
         score = 0
         strng = ""
 
-        hat = list()
+        prob = list()
 
-
-        # if 1 == randint(1, 1):
-        #     temp = (randint(0,2), randint(0,2))
-        #     while not self.currBoard.is_valid_move(temp):
-        #         temp = (randint(0,2), randint(0,2))
-        #     return temp
         for i in range(3):
             for j in range(3):
                 if (self.currBoard.is_valid_move((i, j))):
                     editBoard.board[i][j] = self.piece
                     strng = editBoard.to_string_one_line()
                     score = 0
-                    if strng in self.memory:
-                        tickets = (100 * score + 50) // 2
-                        hat.append((i, j) * tickets)
-                    else:
-                        hat.append((i, j) * 10)
+                    
+                    prob.append(((i, j), self.evaluate_option(strng, Temperature)))
+
 
                     editBoard.board = self.copy_board(self.currBoard)
+        bot = 0
+        for dub in prob:
+            bot += dub[1]
+        for dub in range(len(prob)):
+            # print(prob[dub])
+            if dub == 0:
+                prob[dub] = (prob[dub][0], prob[dub][1] / bot)
+            else :
+                prob[dub] = (prob[dub][0], prob[dub][1] / bot + prob[dub - 1][1])
 
-        return hat[randint(0, len(hat) - 1)]
+        rand = random()
+        for dub in prob:
+            if (rand < dub[1]):
+                return dub[0]
+        print("FUCK")
+        return (0, 0)
 
     def make_move(self):
         return self.evaluate_options()
