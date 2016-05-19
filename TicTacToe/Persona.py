@@ -77,16 +77,22 @@ class Persona:
         self.TIEWORTH = .7
 
     # default operations of a "player"
-    def Q(self, board):
+    def Q(self, board, move):
+        posBonus = 0
+
         if board in self.memory:
-            prevQ = self.memory[board][0]
+            print("IN MEMORY")
+            prevQ = self.memory[board][0] * math.log(self.memory[board][1], 10)
+            posBonus = posBonus / self.memory[board][1]
         else:
+            print("NEW MOVE")
             prevQ = self.UNRESEARCHEDBOARDVALUE
-        return prevQ
+
+        return prevQ + posBonus
 
 
-    def evaluate_option(self, board, temp):
-        top = math.e ** (self.Q(board) / temp)
+    def evaluate_option(self, board, move, temp):
+        top = math.e ** (self.Q(board, move) / temp)
         return top
 
     def evaluate_options(self):
@@ -98,7 +104,7 @@ class Persona:
         strng = ""
 
         prob = list()
-
+        self.currBoard.print_board()
         for i in range(3):
             for j in range(3):
                 if (self.currBoard.is_valid_move((i, j))):
@@ -106,7 +112,7 @@ class Persona:
                     strng = editBoard.to_string_one_line()
                     score = 0
                     
-                    prob.append(((i, j), self.evaluate_option(strng, Temperature)))
+                    prob.append(((i, j), self.evaluate_option(strng, (i, j), Temperature)))
 
 
                     editBoard.board = self.copy_board(self.currBoard)
@@ -121,6 +127,7 @@ class Persona:
                 prob[dub] = (prob[dub][0], prob[dub][1] / bot + prob[dub - 1][1])
 
         rand = random()
+        # print(prob)
         for dub in prob:
             if (rand < dub[1]):
                 return dub[0]
@@ -138,6 +145,10 @@ class Persona:
     def end_game(self, board, w):
         d = {"-": self.TIEWORTH, "O": 1 if self.piece == w else 0, "X": 1 if self.piece == w else 0}
 
+
+        # print(self.boardStates)
+        # print("")
+
         self.add_board(board.to_string_one_line())
         [self.add_board_to_memory(b, d[w]) for b in self.boardStates]
-        self.write_history("history.txt")
+        self.boardStates = [GameBoard().to_string_one_line()]
