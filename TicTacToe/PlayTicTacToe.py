@@ -1,6 +1,7 @@
 from Board import GameBoard
-from Persona import Persona
-from Player import Player
+from Players import Persona
+from Players import Player
+import random
 
 gb = GameBoard()
 player = ["", ""]
@@ -15,35 +16,45 @@ else:
     activePlayer[0] = Player("O")
 
 if player[1] == "persona":
-    activePlayer[1] = Persona("X")
+    activePlayer[1] = Persona("X", learning = False)
 else:
     activePlayer[1] = Player("X")
 
 def play_tic_tac_toe():
 
     gb = GameBoard()
-
-    while (not gb.has_won(gb.pieces[gb.turnNumber]) and not gb.is_tie()):
-        gb.switch_turn()
-        # gb.print_board()
-        # print("\n")
-
-        if(player[gb.turnNumber] == "persona"):
-            coord = activePlayer[gb.turnNumber].make_move()
-            activePlayer[gb.turnNumber].update(gb, None)
-        else:
-            coord = activePlayer[gb.turnNumber].make_move(gb)
-
-        gb.place_piece(coord)
-
+    gb.turnNumber = random.choice([0, 1])
     # gb.print_board()
 
-    if gb.is_tie():
-        # print("Xs and Os Tied!")
-        activePlayer[1].end_game(gb, "-")
-    else:
-        # print("%ss Won the game!" %gb.pieces[gb.turnNumber])
-        activePlayer[1].end_game(gb, gb.pieces[gb.turnNumber])
+    while True:
+        # print()
+        currPlayer, otherPlayer = activePlayer[gb.turnNumber], activePlayer[(gb.turnNumber + 1) % 2]
+        coord = currPlayer.make_move(gb)
+        gb.place_piece(coord)
 
-for i in range(2000):
+        results = gb.get_results()
+        if results == currPlayer.piece:
+            currPlayer.update(1, gb)
+            otherPlayer.update(-1, gb)
+            break
+        if results == "-": # tie game
+            currPlayer.update(0.5, gb)
+            otherPlayer.update(0.5, gb)
+            break
+        otherPlayer.update(0, gb)
+
+
+
+        if player[0] != "persona" or player[1] != "persona":
+            gb.print_board()
+
+        gb.switch_turn()
+    # gb.print_board()
+
+
+
+
+for i in range(30000):
+    # print(i)
     play_tic_tac_toe()
+activePlayer[1].write_history()
