@@ -22,7 +22,7 @@ class Persona:
     def read_history(self, fileName):
         mem = dict()
         with open(fileName, "r") as file:
-            split = []
+            split = [] 
             # print(file.read())
             for line in file.readlines():
                 # print(line)
