@@ -78,3 +78,10 @@ class GameBoard:
             return True
 
         return False
+
+    def copy_board(self):
+        copy = GameBoard()
+        for i in range(6):
+            for j in range(7):
+                copy.board[j][i] = self.board[j][i]
+        return copy
