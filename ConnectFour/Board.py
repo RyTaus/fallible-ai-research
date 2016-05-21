@@ -74,7 +74,7 @@ class GameBoard:
         row = self.lastPosition[1]
         whichCol = 0
         
-        while (col > 0 and whichCol < 3 and self.board[col][row] == piece):
+        while (col > 0 and whichCol < 3 and self.board[col-1][row] == piece):
             col -= 1
             whichCol += 1
         if piece == self.board[col][row] == self.board[col+1][row] == \
