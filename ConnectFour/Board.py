@@ -72,27 +72,16 @@ class GameBoard:
     def has_won_horizontally(self, piece):
         col = self.lastPosition[0]
         row = self.lastPosition[1]
-        # whichCol = 0
-        # if col > 0:
-        #     while ((col - whichCol) >= 0 and self.board[col - whichCol][row] == piece):
-        #         whichCol += 1
-        # print(self.lastPosition)
-        # if piece == self.board[col+1 - whichCol][row] == self.board[col+2 - whichCol][row] == \
-        # self.board[col+3 - whichCol][row] == self.board[col+4 - whichCol][row]:
-        #     return True
-
-        # return False
-        cols = [[col - 3, col - 2, col - 1], [col - 2, col - 1, col + 1], [col - 1, col + 1, col + 2], [col + 1, col + 2, col + 3]]
-
-        for cl in cols:
-            if any([c < 0 or c >= self.width for c in cl]):
-                pass
-            else:
-                if all([self.board[c][row] == self.board[col][row] for c in cl]):
-                    return True
+        whichCol = 0
+        
+        while (col > 0 and whichCol < 3 and self.board[col][row] == piece):
+            col -= 1
+            whichCol += 1
+        if piece == self.board[col][row] == self.board[col+1][row] == \
+        self.board[col+2][row] == self.board[col+3][row]:
+            return True
+            
         return False
-
-
 
     def has_won(self, piece):
         if self.has_won_vertically(piece) or self.has_won_horizontally(piece):
