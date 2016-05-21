@@ -57,12 +57,6 @@ class GameBoard:
     def has_won_vertically(self, piece):
         col = self.lastPosition[0]
         row = self.lastPosition[1]
-        # if self.lastPosition[1] < 3:
-        #     if piece == self.board[col][row] == self.board[col][row+1] == \
-        #     self.board[col][row+2] == self.board[col][row+3]:
-        #         return True
-
-        # return False
 
         rows = [row - 1, row - 2, row - 3]
         if any([r < 0 for r in rows]):
@@ -77,17 +71,35 @@ class GameBoard:
         while (col > 0 and whichCol < 3 and self.board[col-1][row] == piece):
             col -= 1
             whichCol += 1
-        if piece == self.board[col][row] == self.board[col+1][row] == \
-        self.board[col+2][row] == self.board[col+3][row]:
-            return True
-            
-        return False
+        return piece == self.board[col][row] == self.board[col+1][row] == \
+        self.board[col+2][row] == self.board[col+3][row]
+
+    def has_won_down_to_right(self, piece):
+        col = self.lastPosition[0]
+        row = self.lastPosition[1]
+        if not ((row + col) <= 2 or (col - row) >= 9):
+            while (row < 5 and col > 0 and self.board[col-1][row+1] == piece):
+                row += 1
+                col -= 1
+        return piece == self.board[col][row] == self.board[col+1][row-1] == \
+        self.board[col+2][row-2] == self.board[col+3][row-3]
+
+    def has_won_up_to_right(self, piece):
+        col = self.lastPosition[0]
+        row = self.lastPosition[1]
+        if not ((row - col) >= 3 or (col - row) >= 4):
+            while (row > 0 and col > 0 and self.board[col-1][row-1]):
+                row -= 1
+                col -= 1
+        return piece == self.board[col][row] == self.board[col+1][row+1] == \
+        self.board[col+2][row+2] == self.board[col+3][row+3] 
+
+    def has_won_diagonally(self, piece):
+        return self.has_won_down_to_right(piece) or self.has_won_up_to_right(piece)
 
     def has_won(self, piece):
-        if self.has_won_vertically(piece) or self.has_won_horizontally(piece):
-            return True
-
-        return False
+        return self.has_won_vertically(piece) or self.has_won_horizontally(piece) \
+        or self.has_won_diagonally(piece)
 
     def copy(self):
         copy = GameBoard()
@@ -97,4 +109,9 @@ class GameBoard:
         return copy
 
     def get_results(self):
+        if self.has_won("ok"):
+            return self.board[self.lastPosition[0]][self.lastPosition[1]]
+        if self.is_tie():
+            return "-"
+
         return None
