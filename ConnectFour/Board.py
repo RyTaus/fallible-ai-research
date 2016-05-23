@@ -132,3 +132,15 @@ class GameBoard:
             return "-"
 
         return None
+
+    def will_win_on_col(self, col, piece):
+        boardCopy = self.copy()
+        boardCopy.place_piece(col)
+        return boardCopy.has_won(piece)
+
+    def cocks_to_block(self, piece):
+        cocksToBlock = [False] * 7
+        for i in range(7):
+            if self.is_valid_action(i):
+                cocksToBlock[i] = (self.will_win_on_col(i, piece))
+        return cocksToBlock
