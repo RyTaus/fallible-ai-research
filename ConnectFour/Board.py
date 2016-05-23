@@ -6,12 +6,14 @@ class GameBoard:
 
         self.board = [["-" for i in range(self.height)] for j in range(self.width)]
         self.pieces = ["X", "O"]
-        self.turnNumber = 0
+        self.turnState = 0
         self.lastPosition = [None, None]
+        self.turnNumber = 0
 
 
     def switch_turn(self):
-        self.turnNumber = (self.turnNumber + 1) % 2
+        self.turnNumber += 1
+        self.turnState = (self.turnState + 1) % 2
 
     def print_board(self):
         board = ""
@@ -35,7 +37,7 @@ class GameBoard:
         self.board[col][rowCoord] = piece
 
     def place_piece(self, col):
-        self.set_coord(col, self.pieces[self.turnNumber])
+        self.set_coord(col, self.pieces[self.turnState])
 
     def valid_actions(self):
         validCols = []
@@ -48,10 +50,9 @@ class GameBoard:
         return col in self.valid_actions()
 
     def is_tie(self):
-        for i in range(6):
-            for j in range(7):
-                if self.board[i][j] == "-":
-                    return False 
+        for col in self.board:
+            if col.count("-") > 0:
+                return False
         return True
 
     def has_won_vertically(self, piece):
@@ -66,40 +67,58 @@ class GameBoard:
     def has_won_horizontally(self, piece):
         col = self.lastPosition[0]
         row = self.lastPosition[1]
-        whichCol = 0
-        
-        while (col > 0 and whichCol < 3 and self.board[col-1][row] == piece):
-            col -= 1
-            whichCol += 1
-        return piece == self.board[col][row] == self.board[col+1][row] == \
-        self.board[col+2][row] == self.board[col+3][row]
 
-    def has_won_down_to_right(self, piece):
+        cols = [[col - 3, col - 2, col - 1], [col - 2, col - 1, col + 1], [col - 1, col + 1, col + 2], [col + 1, col + 2, col + 3]]
+
+        for cl in cols:
+            if any([c < 0 or c >= self.width for c in cl]):
+                pass
+            else:
+                if all([self.board[c][row] == self.board[col][row] for c in cl]):
+                    return True
+        return False
+
+    def has_won_diagonallyBLTR(self, piece):
         col = self.lastPosition[0]
         row = self.lastPosition[1]
-        if not ((row + col) <= 2 or (col - row) >= 9):
-            while (row < 5 and col > 0 and self.board[col-1][row+1] == piece):
-                row += 1
-                col -= 1
-        return piece == self.board[col][row] == self.board[col+1][row-1] == \
-        self.board[col+2][row-2] == self.board[col+3][row-3]
+        p = self.board[col][row]
 
-    def has_won_up_to_right(self, piece):
+        c = col
+        r = row
+
+        while c > 0 and r > 0 and self.board[c - 1][r - 1] == p:
+            c -= 1
+            r -= 1
+
+        if (c + 4) >= self.width or (r + 4) >= self.width:
+            return False
+
+        return (p == self.board[c][r] == self.board[c + 1][r + 1] == self.board[c + 2][r + 2] == self.board[c + 3][r + 3])
+
+
+    def has_won_diagonallyTLBR(self, piece):
         col = self.lastPosition[0]
         row = self.lastPosition[1]
-        if not ((row - col) >= 3 or (col - row) >= 4):
-            while (row > 0 and col > 0 and self.board[col-1][row-1]):
-                row -= 1
-                col -= 1
-        return piece == self.board[col][row] == self.board[col+1][row+1] == \
-        self.board[col+2][row+2] == self.board[col+3][row+3] 
+        p = self.board[col][row]
+
+        c = col
+        r = row
+
+        while c > 0 and r < (self.height - 1) and self.board[c - 1][r + 1] == p:
+            c -= 1
+            r += 1
+
+        if (c + 4 >= self.width) or (r - 4 < 0):
+            return False
+
+        return (p == self.board[c][r] == self.board[c + 1][r - 1] == self.board[c + 2][r - 2] == self.board[c + 3][r - 3])
 
     def has_won_diagonally(self, piece):
-        return self.has_won_down_to_right(piece) or self.has_won_up_to_right(piece)
+        return self.has_won_diagonallyTLBR(piece) or self.has_won_diagonallyBLTR(piece)
+
 
     def has_won(self, piece):
-        return self.has_won_vertically(piece) or self.has_won_horizontally(piece) \
-        or self.has_won_diagonally(piece)
+        return self.has_won_vertically(piece) or self.has_won_horizontally(piece) or self.has_won_diagonally(piece)
 
     def copy(self):
         copy = GameBoard()
