@@ -9,7 +9,6 @@ class GameBoard:
         self.turnNumber = 0
         self.lastPosition = [None, None]
 
-
     def switch_turn(self):
         self.turnNumber = (self.turnNumber + 1) % 2
 
@@ -48,9 +47,10 @@ class GameBoard:
         return col in self.valid_actions()
 
     def is_tie(self):
-        for col in self.board:
-            if col.count("-") > 0:
-                return False
+        for i in range(6):
+            for j in range(7):
+                if self.board[i][j] == "-":
+                    return False 
         return True
 
     def has_won_vertically(self, piece):
@@ -116,7 +116,8 @@ class GameBoard:
 
 
     def has_won(self, piece):
-        return self.has_won_vertically(piece) or self.has_won_horizontally(piece) or self.has_won_diagonally(piece)
+        return self.has_won_vertically(piece) or self.has_won_horizontally(piece) \
+        or self.has_won_diagonally(piece)
 
     def copy(self):
         copy = GameBoard()
@@ -135,12 +136,23 @@ class GameBoard:
 
     def will_win_on_col(self, col, piece):
         boardCopy = self.copy()
-        boardCopy.place_piece(col)
+        if boardCopy.is_valid_action(col):
+            boardCopy.place_piece(col)
         return boardCopy.has_won(piece)
+
 
     def cocks_to_block(self, piece):
         cocksToBlock = [False] * 7
         for i in range(7):
-            if self.is_valid_action(i):
-                cocksToBlock[i] = (self.will_win_on_col(i, piece))
+            cocksToBlock[i] = (self.will_win_on_col(i, piece))
         return cocksToBlock
+
+    def check_for_trap(self, piece):
+        otherPiece = {"X" : "O", "O" : "X"}
+        opponentWins = [False] * 7
+        for i in range(7):
+            if self.is_valid_action(i):
+                self.place_piece(i)
+            opponentWins[i] = self.will_win_on_col(i, otherPiece[self.pieces[self.turnNumber]])
+            self.board[self.lastPosition[0]][self.lastPosition[1]] = "-"
+        return opponentWins
