@@ -8,7 +8,7 @@ class population:
         self.time_best_unchanged = 0
         self.time_stayed_on_top = 0
         self.killThreshold = .2
-        self.mateThreshold = .8
+        self.mateThreshold = .2
         self.mutateThreshold = .2
 
     # def assess(self, chromosomes)
@@ -23,17 +23,22 @@ class population:
             newPopulation[i] = self.chromosomes[i]
 
         return newPopulation
-
+        
     def mate(self, chromosomes):
-        potentialToMate = self.chromosomes.length * self.mateThreshold;
+        potentialToMate = self.chromosomes.length * (1 - self.mateThreshold);
         potentialToMate = int(potentialToMate)
         if potentialToMate % 2 == 1:
             potentialToMate -=1
-        strongestChromosomes = [chromosomes]
+        strongestChromosomes = [chromosomes[i] for i in range(potentialToMate, len(self.chromosomes))]
         mateList = [None] * potentialToMate
-        for i in range(potentialToMate/2):
 
-            print()
+        for i in range(potentialToMate):
+            mateList[i] = random.choice(strongestChromosomes)
+            strongestChromosomes.remove(mateList[i])
+
+        for i in range(potentialToMate/2):
+            self.chromosomes.extend(mateList[i].mate(mateList[i+1]))
+            i += 1
 
     def mutate(self, chromosomes):
         mutants = self.chromosomes.length * self.mutateThreshold;
