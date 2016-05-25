@@ -26,8 +26,6 @@ class population:
         for i in range(surivied):
             self.chromosomes.remove(self.chromosomes[i])
 
-        return newPopulation
-
     def mate(self, chromosomes):
         temp = list()
         start = int(len(self.chromosomes) * (1 - self.mateThreshold))
