@@ -1,4 +1,5 @@
 import random
+from operator import itemgetter, attrgetter, methodcaller
 
 class population:
 
@@ -11,37 +12,38 @@ class population:
         self.mateThreshold = .2
         self.mutateThreshold = .2
 
+        self.populationSize = 20
+
     # def assess(self, chromosomes)
 
 
-    # def sort(self, chromosomes):
+    def sort(self):
+        return sorted(self.chromosomes, key = attrgetter('fitness'))
 
 
     def kill(self, chromosomes):
-        surivied = self.chromosomes.length * self.killThreshold;
+        end = int(len(self.chromosomes) * self.killThreshold)
         for i in range(surivied):
-            newPopulation[i] = self.chromosomes[i]
+            self.chromosomes.remove(self.chromosomes[i])
 
         return newPopulation
-        
+
     def mate(self, chromosomes):
-        potentialToMate = self.chromosomes.length * (1 - self.mateThreshold);
-        potentialToMate = int(potentialToMate)
-        if potentialToMate % 2 == 1:
-            potentialToMate -=1
-        strongestChromosomes = [chromosomes[i] for i in range(potentialToMate, len(self.chromosomes))]
-        mateList = [None] * potentialToMate
+        temp = list()
+        start = int(len(self.chromosomes) * (1 - self.mateThreshold))
+        while len(start) + len(self.chromosomes) < self.populationSize
+            l = [self.chromosomes[i] for i in range(start, len(self.chromosomes))]
+            mom = random.choice(l)
+            l.remove(mom)
+            dad = random.choice(l)
+            temp.append(mom.mate(dad))
+        for c in temp:
+            self.chromosomes.append(c)
 
-        for i in range(potentialToMate):
-            mateList[i] = random.choice(strongestChromosomes)
-            strongestChromosomes.remove(mateList[i])
-
-        for i in range(potentialToMate/2):
-            self.chromosomes.extend(mateList[i].mate(mateList[i+1]))
-            i += 1
 
     def mutate(self, chromosomes):
-        mutants = self.chromosomes.length * self.mutateThreshold;
-        for i in range(mutants):
-            print()
-            # chromosomes[]
+        start = int(len(self.chromosomes) * (1 - self.mateThreshold))
+        exempt = [self.chromosomes[i] for i in range(start, len(self.chromosomes))]
+        l = [self.chromosomes[i] for i in range(start, len(self.chromosomes))]
+        for i in range(self.mutateThreshold * len(self.chromosomes)):
+            random.choice(l).mutate()
