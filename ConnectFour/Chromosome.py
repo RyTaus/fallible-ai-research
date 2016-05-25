@@ -1,5 +1,4 @@
 import random
-from operator import itemgetter, attrgetter, methodcaller
 
 class Chromosome:
 
@@ -36,30 +35,5 @@ class Chromosome:
     def __repr__(self):
         return self.__str__()
 
-
-def sort(chromos):
-    return sorted(chromos, key = attrgetter('fitness'))
-
-header = " pos | blk1 | blk2 | blk3 | con1 | con2 | con3 | fit"
-c = Chromosome()
-c2 = Chromosome()
-
-print(header)
-print(c)
-print(c2)
-
-c3 = c.mate(c2)
-
-print()
-print(c3)
-print()
-print()
-
-c.fitness = 3
-c2.fitness = 18.3
-c3.fitness = 5.8
-
-l = [c, c2, c3]
-
-print(l)
-print(sort(l))
+    def __eq__(self, other):
+        return self.weights == other.weights 
