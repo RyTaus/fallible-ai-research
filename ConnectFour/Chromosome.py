@@ -9,12 +9,11 @@ class Chromosome:
 
     def randomize(self):
         w = [0 for i in range(7)]
-        w[0] = random.uniform(0, 100)
-        for i in range(1, 7):
+        for i in range(1, 7): # 
             if i % 3 == 1:
-                w[i] = random.uniform(0, 100)
+                w[i] = random.uniform(0, 1000)
             else:
-                w[i] = random.uniform(w[i-1], 100)
+                w[i] = random.uniform(w[i-1], 1000)
         return w
 
     def mate(self, other):
@@ -24,12 +23,16 @@ class Chromosome:
         return c
 
     def mutate(self):
-        self.weights = self.randomize()
+        r = self.randomize()
+        self.weights[random.choice([0, 1, 2, 3, 4, 5, 6])] = random.uniform(0, 1000)
+
+    def update(self, bonus):
+        self.fitness = self.fitness + bonus
 
     def __str__(self):
         s = ""
         for i in self.weights:
-            s = s + str(i)[:4] + " | "
+            s = s + str(i)[:5] + " | "
         return s + " " + str(self.fitness)
 
     def __repr__(self):
