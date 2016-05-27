@@ -97,6 +97,66 @@ class Population:
     def reset_scores(self):
         for chromo in self.chromosomes:
             chromo.fitness = 0
+            
+def fill_coords(XCoords, OCoords):
+    testBoard = GameBoard()
+    for x in range(len(XCoords)):
+        testBoard.board[XCoords[x][0]][XCoords[x][1]] = 'X'
+    for o in range(len(OCoords)):
+        testBoard.board[OCoords[o][0]][OCoords[o][1]] = 'O'
+    return testBoard
+
+def made_good_choice(board, player, cols):
+    return player.make_move(board) in cols
+
+def test_population(player):
+    # Check to see if player O plays at col 2 or 5
+    XCoords = [[3,0],[4,0]]
+    OCoords = [[3,1]]
+    testBoard = fill_coords(XCoords, OCoords)
+    cols = [2,5]
+    testBoard.switch_turn()
+    made_good_choice(testBoard, player, cols)
+
+    # Check to see if player X plays at col 2 or 5
+    OCoords = [[3,1],[4,1]]
+    testBoard = fill_coords(XCoords, OCoords)
+    made_good_choice(testBoard, player, cols)
+
+    # Check to see if player O plays at col 1 or 4
+    XCoords = [[2,0],[3,0]]
+    OCoords = [[2,1],[3,1]]
+    testBoard = fill_coords(XCoords, OCoords)
+    cols = [1,4]
+    testBoard.switch_turn()
+    made_good_choice(testBoard, player, cols)
+
+    # Check to see if player O plays at col 3 and player X plays at 0
+    XCoords = [[0,0],[0,1],[0,2]]
+    OCoords = [[3,0],[3,1],[3,2]]
+    testBoard = fill_coords(XCoords, OCoords)
+    cols = [1,4]
+    testBoard.switch_turn()
+    made_good_choice(testBoard, player, cols)
+
+    # Check to see if player O plays at col 0
+    XCoords = [[1,0],[2,1],[3,0],[3,1],[3,2],[4,0]]
+    OCoords = [[1,1],[2,0],[2,2],[3,3],[5,0]]
+    testBoard = fill_coords(XCoords, OCoords)
+    cols = [1,4]
+    testBoard.switch_turn()
+    made_good_choice(testBoard, player, cols)
+
+    # Check to see if player O plays at col 0
+    XCoords = [[0,0],[0,1],[0,2]]
+    OCoords = [[2,0],[2,1],[4,0]]
+    testBoard = fill_coords(XCoords, OCoords)
+    cols = [1,4]
+    testBoard.switch_turn()
+    made_good_choice(testBoard, player, cols)
+
+player = Players.Player('O')
+test_population(player)
 
 p1 = Population()
 p2 = Population()
