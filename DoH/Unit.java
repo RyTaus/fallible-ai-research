@@ -8,7 +8,8 @@ public class Unit {
     public int speed;
     public Class job;
     public int currHP;
-    public boolean hasMoved;
+    public boolean isDone;
+    public TeamType team;
 
     public void Move(int[] coord) {
         // if (isValidMove(coord)) {
@@ -17,7 +18,7 @@ public class Unit {
 
     }
 
-    public int damagePossible(Unit enemy) {
+    public int expectedDamage(Unit enemy) {
         if (str - enemy.def <= 0) {
             return 0;
         }
@@ -33,14 +34,18 @@ public class Unit {
 
     public void Battle(Unit enemy) {
         //if (canAttack(coord)) {
-            enemy.currHP =- damagePossible(enemy);
-            currHP =- enemy.damagePossible(this);
+            enemy.currHP =- expectedDamage(enemy);
+            currHP =- enemy.expectedDamage(this);
         //}
 
         // if (canAttack(coord)) {
 
         // }
 
+    }
+
+    public void setTeam(TeamType whichTeam) {
+        team = whichTeam;
     }
 
     // public Wait() {
