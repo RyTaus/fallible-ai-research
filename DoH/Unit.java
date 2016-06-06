@@ -24,6 +24,14 @@ public class Unit {
         isDone = false;
     }
 
+    public String toString() {
+        String unitInfo = job + " Lv: " + lvl + "\n" + currHP + "/" + maxHP + "\nSTR: " + str +
+            "\nDEF: " + def + "\nSPD: " + speed;
+        System.out.println(unitInfo);
+        return unitInfo;
+    }
+
+
     public void Move(Coord coord) {
         // if (isValidMove(coord)) {
             position.moveTo(coord);
@@ -77,5 +85,14 @@ public class Unit {
     // public canAttack(int[] coord) {
 
     // }
+
+
+    public static void main(String[] args) {
+        Coord none = new Coord(0,0);
+        Class blah = Class.Gunner;
+        TeamType sure = TeamType.PLAYER;
+        Unit joe = new Unit(none, 4, 5, 4, 3, 3, blah, sure);
+        joe.toString();
+    }
 
 }
