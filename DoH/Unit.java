@@ -1,6 +1,6 @@
 public class Unit {
 
-    public int[] position;
+    public Coord position;
     public int lvl;
     public int maxHP;
     public int str;
@@ -11,9 +11,22 @@ public class Unit {
     public boolean isDone;
     public TeamType team;
 
-    public void Move(int[] coord) {
+    public Unit(Coord pos, int level, int hp, int strength, int defense, int spd, Class type, TeamType side) {
+        position = pos;
+        lvl = level;
+        maxHP = hp;
+        currHP = hp;
+        str = strength;
+        def = defense;
+        speed = spd;
+        job = type;
+        team = side;
+        isDone = false;
+    }
+
+    public void Move(Coord coord) {
         // if (isValidMove(coord)) {
-            position = coord;
+            position.moveTo(coord);
         // }
 
     }
