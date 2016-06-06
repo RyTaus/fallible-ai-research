@@ -24,9 +24,9 @@ public class Cell {
 		
 		public Color img() {
 			switch(this) {
-				case PLAIN: return Color.YELLOW;
-				case SHRUB: return Color.GREEN;
-				case WATER: return Color.BLUE;
+				case PLAIN: return new Color(240, 230, 140);
+				case SHRUB: return new Color(154, 205, 50);
+				case WATER: return new Color(30, 144, 255);
 				case WALL: return Color.BLACK;
 			
 			}
