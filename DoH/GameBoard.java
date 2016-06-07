@@ -272,4 +272,26 @@ public class GameBoard {
 			return !player.isUnitOn(c);
 		}
 	}
+	
+	public int expectedDamage(Unit att, Coord attC, Unit rec) {
+		int dmg = att.str - (rec.def + map.getCell(rec.position).type.defense);
+		if (dmg < 0) {
+			dmg = 0;
+		}
+		if (att.canAttackTwice(rec)) {
+			dmg = dmg * 2;
+		}
+		return dmg;	
+	}
+	
+	public int expectedRecDamage(Unit att, Coord attC, Unit rec) {
+		int dmg = rec.str - (att.def + map.getCell(attC).type.defense);
+		if (dmg < 0) {
+			dmg = 0;
+		}
+		if (rec.canAttackTwice(att)) {
+			dmg = dmg * 2;
+		}
+		return dmg;	
+	}
 }
