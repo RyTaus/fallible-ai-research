@@ -34,35 +34,6 @@ public class GameBoard {
 		enemy = e;
 	}
 	
-	public void move(Direction dir) {
-		if (state == State.SELECT_UNIT || state == State.SELECT_DESTINATION) {
-			map.moveCursor(dir);
-		} 
-	}
-
-	public void press() {
-		// TODO Auto-generated method stub
-		if (state == State.SELECT_UNIT) {
-			if (player.isUnitOn(map.cursor)) {
-				map.marked.moveTo(map.cursor);
-				System.out.println(player.unitOn(map.cursor));
-				System.out.println(Arrays.deepToString(canMoveMap(player.unitOn(map.cursor))));
-				state = State.SELECT_DESTINATION;
-			}
-		} else if (state == State.SELECT_DESTINATION) {
-			Unit uoi = player.unitOn(map.marked);
-			if (Arrays.asList(canMoveMap(uoi)).contains(map.cursor)) {
-				uoi.move(map.cursor);
-//				actionMenu = new ActionMenu(canActOn(uoi, getTeam(uoi.team)));
-				state = State.SELECT_ACTION;
-			} else {
-				state = State.SELECT_UNIT;
-			}
-		} else if (state == State.SELECT_ACTION) {
-			state = State.SELECT_UNIT; //TEMP
-		}
-	}
-
 	private Team getTeam(TeamType team) {
 		if (team == TeamType.PLAYER) {
 			return player;
@@ -78,17 +49,59 @@ public class GameBoard {
 			return player;
 		}
 	}
-//
-//	public Unit[] canActOn(Unit u, Team t) {
-//		Team temp;
-//		if (u.team == TeamType.PLAYER) {
-//			temp = 
-//		}
-//		
-//		Unit[] stockArr = new Unit[possible.size()];
-//		stockArr = possible.toArray(stockArr);
-//		return stockArr;
-//	}
+	
+	public void move(Direction dir) {
+		if (state == State.SELECT_UNIT || state == State.SELECT_DESTINATION) {
+			map.moveCursor(dir);
+		}  else if (state == State.SELECT_ACTION) {
+			actionMenu.move(dir);
+		}
+	}
+	
+	public Coord[] canAttackFrom(Unit u, Coord c) {
+		Coord[] poss = canMoveMap(u);
+		ArrayList<Coord> result = new ArrayList<Coord>();
+		for (Coord p : poss) {
+			if (p.distance(c) >= u.job.range[0] && p.distance(c) <= u.job.range[1]) {
+				result.add(p);
+			}
+		}
+		return result.toArray(new Coord[result.size()]);
+	}
+
+	public void press() {
+		// TODO Auto-generated method stub
+		if (state == State.SELECT_UNIT) {
+			if (player.isUnitOn(map.cursor)) {
+				map.marked.moveTo(map.cursor);
+				state = State.SELECT_DESTINATION;
+			}
+		} else if (state == State.SELECT_DESTINATION) {
+			Unit uoi = player.unitOn(map.marked);
+			if (Arrays.asList(canMoveMap(uoi)).contains(map.cursor)) {
+				uoi.move(map.cursor);
+				actionMenu = new ActionMenu(canActOn(uoi, otherTeam(uoi.team)));
+				state = State.SELECT_ACTION;
+			} else {
+				state = State.SELECT_UNIT;
+			}
+		} else if (state == State.SELECT_ACTION) {
+			state = actionMenu.press();
+			if (state == State.BATTLE) {
+				battle(unitOn(map.cursor), actionMenu.targets.select());
+				state = State.SELECT_UNIT;
+			}
+		}
+	}
+
+	private void battle(Unit att, Unit rec) {
+		att.battle(rec);
+		
+	}
+
+	public Unit[] canActOn(Unit u, Team t) {
+		return canAttack(u, false);
+	}
 
 	public void back() {
 		if (state == State.SELECT_UNIT) {
@@ -96,8 +109,10 @@ public class GameBoard {
 		} else if (state == State.SELECT_DESTINATION) {
 			state = State.SELECT_UNIT;
 		} else if (state == State.SELECT_ACTION) {
-			player.unitOn(map.cursor).move(map.marked);
-			state = State.SELECT_DESTINATION;
+			state = actionMenu.back();
+			if (state == State.SELECT_DESTINATION) {
+				player.unitOn(map.cursor).move(map.marked);
+			}
 		}
 		
 	}
@@ -120,13 +135,13 @@ public class GameBoard {
 		if (afterMove) {
 			starting = canMoveMap(u);
 		} 
-		ArrayList<Coord> attackable = (ArrayList<Coord>) Arrays.asList(webOut(starting, u.job.range));
+		ArrayList<Coord> attackable = new ArrayList<Coord>(Arrays.asList(webOut(starting, u.job.range)));
 		for (Unit unit : otherTeam(u.team).units) {
 			if (attackable.contains(unit.position)) {
 				targets.add(unit);
 			}
 		}
-		return (Unit[]) targets.toArray();
+		return targets.toArray(new Unit[targets.size()]);
 	}
 	
 	public Coord[] canAttackMap(Unit u) {
@@ -212,7 +227,6 @@ public class GameBoard {
 				if (n.y >= 0) {
 					if (i + map.getCell(n).moveAffect(u) < possible.length && checkToAdd(n, t)) {
 						possible[i + map.getCell(n).moveAffect(u)].add(n);
-						System.out.println("  " + i + map.getCell(n).moveAffect(u));
 					}
 				}
 				if (e.x < map.width) {
