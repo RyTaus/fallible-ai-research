@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class EnemyPlayer implements Player {
 
@@ -50,7 +51,11 @@ public class EnemyPlayer implements Player {
             }
 
             for (Unit currTarget : gb.canAttack(currUnit, false)) {     //Doesn't worry about putting itself in a better destination
-                currDest = gb.canAttackFrom(currUnit, currTarget.position)[0];
+                if (Arrays.asList(gb.canAttackFrom(currUnit, currTarget.position)).contains(currUnit.position)) {
+                    currDest = currUnit.position;
+                } else {
+                    currDest = gb.canAttackFrom(currUnit, currTarget.position)[0];
+                }
                 currScore = (gb.expectedDamage(currUnit, currDest, currTarget)/ currTarget.currHP);
                 if (currScore > bestScore) {
                     bestUnit = currUnit;
