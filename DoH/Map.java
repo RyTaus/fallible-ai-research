@@ -13,10 +13,15 @@ public class Map {
 	public int height;
 	public Cell[][] map;
 	
+	public Coord cursor;
+	public Coord marked;
+	
 	public Map(String fileName) {
 		map = readFile(fileName);
 		width = map.length;
 		height = map[0].length;
+		cursor = new Coord(2, 4);
+		marked = new Coord(2, 4);
 	}
 	
 	public Cell[][] readFile(String s) {
@@ -60,8 +65,24 @@ public class Map {
 		return null;
 	}
 	
-	public Cell getCell(int col, int row) {
-		return map[col][row];
+	public Cell getCell(Coord c) {
+		return map[c.x][c.y];
+	}
+
+	public void moveCursor(Direction dir) {
+		Coord c = dir.toCoord();
+		int newX = cursor.x + c.x;
+		int newY = cursor.y + c.y;
+		
+		if (newX < 0 || newX > width - 1) {
+			newX = cursor.x;
+		}
+		
+		if (newY < 0 || newY > height - 1) {
+			newY = cursor.y;
+		}
+		Coord nc = new Coord(newX, newY);
+		cursor.moveTo(nc);
 	}
 	
 
