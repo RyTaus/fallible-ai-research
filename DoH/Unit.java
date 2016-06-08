@@ -1,3 +1,9 @@
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 public class Unit {
 
     public Coord position;
@@ -10,7 +16,7 @@ public class Unit {
     public int currHP;
     public boolean isDone;
     public TeamType team;
-
+    
     public Unit(Coord pos, int level, int hp, int strength, int defense, int spd, Class type, TeamType side) {
         position = pos;
         lvl = level;
@@ -24,17 +30,9 @@ public class Unit {
         isDone = false;
     }
 
-    public String toString() {
-        String unitInfo = job + " Lv: " + lvl + "\n" + currHP + "/" + maxHP + "\nSTR: " + str +
-            "\nDEF: " + def + "\nSPD: " + speed;
-        System.out.println(unitInfo);
-        return unitInfo;
-    }
-
-
-    public void Move(Coord coord) {
+    public void move(Coord c) {
         // if (isValidMove(coord)) {
-            position.moveTo(coord);
+            position.moveTo(c);
         // }
 
     }
@@ -52,20 +50,30 @@ public class Unit {
     public boolean canAttackTwice(Unit enemy) {
         return speed/enemy.speed >= 2;
     }
+    
+    public void inflictDamage(int i) {
+    	currHP -= i;
+    	if (currHP < 0) {
+    		currHP = 0;
+    	}
+    }
 
-    public void Battle(Unit enemy) {
-        //if (canAttack(coord)) {
-            enemy.currHP =- expectedDamage(enemy);
-            currHP =- enemy.expectedDamage(this);
-        //}
+    public void battle(Unit enemy) {
+        if (canAttack(enemy.position)) {
+            enemy.currHP -= expectedDamage(enemy);
+        }
 
-        // if (canAttack(coord)) {
-
-        // }
+        if (enemy.canAttack(position)) {
+            currHP -= enemy.expectedDamage(this);
+        }
 
     }
 
-    public void setTeam(TeamType whichTeam) {
+    public boolean canAttack(Coord c) {
+		return position.distance(c) >= job.range[0] && position.distance(c) <= job.range[1];
+	}
+
+	public void setTeam(TeamType whichTeam) {
         team = whichTeam;
     }
 
@@ -85,14 +93,23 @@ public class Unit {
     // public canAttack(int[] coord) {
 
     // }
-
-
-    public static void main(String[] args) {
-        Coord none = new Coord(0,0);
-        Class blah = Class.Gunner;
-        TeamType sure = TeamType.PLAYER;
-        Unit joe = new Unit(none, 4, 5, 4, 3, 3, blah, sure);
-        joe.toString();
+    
+    public BufferedImage image() {
+    	try {
+			return ImageIO.read(new File("src/" + team.name() + "/" + job.name() + ".PNG"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
     }
-
+    
+    public String toString() {
+        return job + " Lv: " + lvl + "\nHP: " + currHP + "/" + maxHP + "\nSTR: " + str +
+            "\nDEF: " + def + "\nSPD: " + speed;
+    }
+    
 }
+
+
+
