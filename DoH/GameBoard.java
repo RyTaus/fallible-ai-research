@@ -23,6 +23,9 @@ public class GameBoard {
 	public Team player;
 	public Team enemy;
 	
+	public Player playerController;
+	public Player enemyController;
+	
 	public ActionMenu actionMenu;
 	
 	public Phase phase = Phase.PLAYER;
@@ -32,6 +35,22 @@ public class GameBoard {
 		map = m;
 		player = p;
 		enemy = e;
+	}
+	
+	public Player getPlayer(TeamType t) {
+		if (t == TeamType.PLAYER) {
+			return playerController;
+		} else {
+			return enemyController;
+		}
+	}
+	
+	private Team getTeam(Phase p) {
+		if (p == Phase.PLAYER) {
+			return player;
+		} else {
+			return enemy;
+		}
 	}
 	
 	private Team getTeam(TeamType team) {
@@ -91,13 +110,10 @@ public class GameBoard {
 				battle(unitOn(map.cursor), actionMenu.targets.select());
 				state = State.SELECT_UNIT;
 			}
+			unitOn(map.cursor).isDone = true;
 		}
 	}
 
-	private void battle(Unit att, Unit rec) {
-		att.battle(rec);
-		
-	}
 
 	public Unit[] canActOn(Unit u, Team t) {
 		return canAttack(u, false);
@@ -145,7 +161,16 @@ public class GameBoard {
 	}
 	
 	public Coord[] canAttackMap(Unit u) {
-		return webOut(canMoveMap(u), u.job.range);
+		ArrayList<Coord> list = new ArrayList<Coord>(Arrays.asList(webOut(canMoveMap(u), u.job.range)));
+		for (int i = 0; i < list.size(); i ++) {
+			for (int j = 0; j < getTeam(u.team).units.size(); j ++) {
+				if (list.get(i).equals(getTeam(u.team).units.get(j).position)) {
+					list.remove(i);
+					break;
+				}
+			}
+		}
+		return list.toArray(new Coord[list.size()]);
 	}
 	
 	public Coord[] webOut(Coord[] origins, int[] distance) {
@@ -293,5 +318,14 @@ public class GameBoard {
 			dmg = dmg * 2;
 		}
 		return dmg;	
+	}
+	
+	public void battle(Unit att, Unit rec) {
+		if (att.canAttack(rec.position)) {
+			rec.inflictDamage(expectedDamage(att, att.position, rec));
+		}
+		if (rec.canAttack(att.position)) {
+			att.inflictDamage(expectedDamage(rec, rec.position, rec));
+		}
 	}
 }
