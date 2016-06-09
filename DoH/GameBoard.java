@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 
+
 public class GameBoard {
 	
 	public enum Phase {
@@ -23,10 +24,11 @@ public class GameBoard {
 	public Team player;
 	public Team enemy;
 	
-	public Player playerController;
-	public Player enemyController;
+	public Player playerController = new HumanPlayer();
+	public Player enemyController = new EnemyPlayer();
 	
 	public ActionMenu actionMenu;
+	public ActionHandler actionHandler;
 	
 	public Phase phase = Phase.PLAYER;
 	public State state = State.SELECT_UNIT;
@@ -45,11 +47,27 @@ public class GameBoard {
 		}
 	}
 	
-	private Team getTeam(Phase p) {
+	public Player getPlayer(Phase p) {
+		if (p == Phase.PLAYER) {
+			return playerController;
+		} else {
+			return enemyController;
+		}
+	}
+	
+	public Team getTeam(Phase p) {
 		if (p == Phase.PLAYER) {
 			return player;
 		} else {
 			return enemy;
+		}
+	}
+	
+	private TeamType getTeamType(Phase p) {
+		if (p == Phase.PLAYER) {
+			return TeamType.PLAYER;
+		} else {
+			return TeamType.ENEMY;
 		}
 	}
 	
@@ -91,12 +109,12 @@ public class GameBoard {
 	public void press() {
 		// TODO Auto-generated method stub
 		if (state == State.SELECT_UNIT) {
-			if (player.isUnitOn(map.cursor)) {
+			if (getTeam(phase).isUnitOn(map.cursor)) {
 				map.marked.moveTo(map.cursor);
 				state = State.SELECT_DESTINATION;
 			}
 		} else if (state == State.SELECT_DESTINATION) {
-			Unit uoi = player.unitOn(map.marked);
+			Unit uoi = getTeam(phase).unitOn(map.marked);
 			if (Arrays.asList(canMoveMap(uoi)).contains(map.cursor)) {
 				uoi.move(map.cursor);
 				actionMenu = new ActionMenu(canActOn(uoi, otherTeam(uoi.team)));
@@ -106,14 +124,34 @@ public class GameBoard {
 			}
 		} else if (state == State.SELECT_ACTION) {
 			state = actionMenu.press();
-			if (state == State.BATTLE) {
-				battle(unitOn(map.cursor), actionMenu.targets.select());
-				state = State.SELECT_UNIT;
+			if (state == State.SELECT_UNIT) {
+				unitOn(map.cursor).isDone = true;
+				endTurn();
+			} else if (state == State.BATTLE) {
+				actionHandler = new ActionHandler(unitOn(map.cursor), actionMenu.targets.select(), actionMenu.menu.select(), this);
 			}
-			unitOn(map.cursor).isDone = true;
-		}
+		} 
 	}
 
+
+	private void endTurn() {
+		if (phase == Phase.PLAYER) {
+			if (player.isDone()) {
+				phase = Phase.ENEMY;
+				System.out.println("Now " + phase + " Turn");
+				player.refresh();
+				state = State.SELECT_UNIT;
+			} 
+		} else {
+			if (enemy.isDone()) {
+				phase = Phase.PLAYER;
+				System.out.println("Now " + phase + " Turn");
+				enemy.refresh();
+				state = State.SELECT_UNIT;
+			} 
+		}
+		
+	}
 
 	public Unit[] canActOn(Unit u, Team t) {
 		return canAttack(u, false);
@@ -127,7 +165,7 @@ public class GameBoard {
 		} else if (state == State.SELECT_ACTION) {
 			state = actionMenu.back();
 			if (state == State.SELECT_DESTINATION) {
-				player.unitOn(map.cursor).move(map.marked);
+				getTeam(phase).unitOn(map.cursor).move(map.marked);
 			}
 		}
 		
@@ -325,7 +363,49 @@ public class GameBoard {
 			rec.inflictDamage(expectedDamage(att, att.position, rec));
 		}
 		if (rec.canAttack(att.position)) {
-			att.inflictDamage(expectedDamage(rec, rec.position, rec));
+			att.inflictDamage(expectedDamage(rec, rec.position, att));
 		}
+	}
+	
+	public void attack(Unit att, Unit rec) {
+		rec.inflictDamage(expectedDamage(att, att.position, rec));
+	}
+
+	public void selectUnit() {
+		// TODO Auto-generated method stub
+		state = State.SELECT_DESTINATION;
+		
+	}
+
+	public void moveUnit(Unit unit, Coord destination) {
+		unit.move(destination);
+		unit.isDone = true;
+		state = State.SELECT_ACTION;
+		
+	}
+
+	public void performAction(Unit unit, ActionMenu.Option action, Unit target) {
+		if (action == ActionMenu.Option.Wait) {
+			unit.isDone = true;
+			state = State.SELECT_UNIT;
+		} else if (action == ActionMenu.Option.Attack) {
+			battle(unit, target);
+			actionHandler = new ActionHandler(unit, target, action, this);
+			state = State.BATTLE;
+		}
+		endTurn();
+		
+	}
+
+	public void update() {
+		switch (state) {
+		case BATTLE:
+			if (actionHandler.update()) {
+				actionHandler.attacker.isDone = true;
+				endTurn();
+				state = State.SELECT_UNIT;
+			}
+		}
+		
 	}
 }

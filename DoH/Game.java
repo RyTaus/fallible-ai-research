@@ -13,7 +13,7 @@ public class Game extends JPanel{
 	public static void main(String[] args) {
 		
 		Unit p1 = new Unit(new Coord(2, 1), 3, 20, 8, 3, 5, Class.Gunner, TeamType.PLAYER);
-		Unit p2 = new Unit(new Coord(1, 3), 5, 22, 7, 6, 5, Class.Swordsman, TeamType.PLAYER);
+		Unit p2 = new Unit(new Coord(1, 3), 5, 22, 4, 6, 5, Class.Swordsman, TeamType.PLAYER);
 		
 		Unit e1 = new Unit(new Coord(6, 6), 3, 12, 8, 5, 2, Class.Swordsman, TeamType.ENEMY);
 		Unit e2 = new Unit(new Coord(5, 7), 5, 13, 6, 6, 6, Class.Gunner, TeamType.ENEMY);
@@ -54,29 +54,49 @@ public class Game extends JPanel{
 	
 	public void update(PlayerInput pi) {
 		// TODO Auto-generated method stub
-		if (pi.keyDown(KeyEvent.VK_W)) {
-			gb.move(Direction.UP);
-		}
-		if (pi.keyDown(KeyEvent.VK_A)) {
-			gb.move(Direction.LEFT);
-		}
-		if (pi.keyDown(KeyEvent.VK_S)) {
-			gb.move(Direction.DOWN);
-		}
-		if (pi.keyDown(KeyEvent.VK_D)) {
-			gb.move(Direction.RIGHT);
-		}
-		if (pi.keyDown(KeyEvent.VK_O)) {
-			gb.press();
-		}
-		if (pi.keyDown(KeyEvent.VK_P)) {
-			gb.back();
-		}
-		if (pi.keyDown(KeyEvent.VK_SPACE)) {
-			if (gb.isUnitOn(gb.map.cursor)) {
-				System.out.println(gb.unitOn(gb.map.cursor));
+		if (gb.getPlayer(gb.phase).getClass() == new HumanPlayer().getClass()) {
+			if (pi.keyDown(KeyEvent.VK_W)) {
+				gb.move(Direction.UP);
+			}
+			if (pi.keyDown(KeyEvent.VK_A)) {
+				gb.move(Direction.LEFT);
+			}
+			if (pi.keyDown(KeyEvent.VK_S)) {
+				gb.move(Direction.DOWN);
+			}
+			if (pi.keyDown(KeyEvent.VK_D)) {
+				gb.move(Direction.RIGHT);
+			}
+			if (pi.keyDown(KeyEvent.VK_O)) {
+				gb.press();
+			}
+			if (pi.keyDown(KeyEvent.VK_P)) {
+				gb.back();
+			}
+			if (pi.keyDown(KeyEvent.VK_SPACE)) {
+				if (gb.isUnitOn(gb.map.cursor)) {
+					System.out.println(gb.unitOn(gb.map.cursor));
+				}
+			}
+		} else {
+			Player p = gb.getPlayer(gb.phase);
+//			p.makeMove(gb, gb.getTeam(gb.phase));
+			switch(gb.state) {
+				case SELECT_UNIT:
+					p.makeMove(gb, gb.getTeam(gb.phase));
+					gb.selectUnit();
+					break;
+				case SELECT_DESTINATION:
+					gb.moveUnit(p.getUnit(), p.getDestination());
+					break;
+				case SELECT_ACTION:
+					gb.performAction(p.getUnit(), p.getAction(), p.getTarget());
+					break;
+				case BATTLE:
+					break;
 			}
 		}
+		gb.update();
 		repaint();
 //		System.out.println(gb.state);
 	}
@@ -138,64 +158,78 @@ public class Game extends JPanel{
 	
 	private void drawUnits(Graphics g) {
 		for (Unit u : gb.player.units) {
-			g.drawImage(u.image(), u.position.x * W + 4, u.position.y * H + 4, null);
+			g.drawImage(u.image(), u.position.x * W + 4 + u.offSet.x, u.position.y * H + 4 + u.offSet.y, null);
 		}
 		for (Unit u : gb.enemy.units) {
-			g.drawImage(u.image(), u.position.x * W + 4, u.position.y * H + 4, null);
+			g.drawImage(u.image(), u.position.x * W + 4 + u.offSet.x, u.position.y * H + 4 + u.offSet.y, null);
 		}
 	}
 	
 	private void drawHighlights(Graphics g) {
-		if (gb.state == GameBoard.State.SELECT_DESTINATION) {
-			if (gb.isUnitOn(gb.map.marked)) {
-				Unit uoi = gb.unitOn(gb.map.marked);
-				Coord[] blue = gb.canMoveMap(uoi);
-				g.setColor(new Color(20, 20, 250, 90));
-				for (Coord spot : blue) {
-					g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
-				}
-				
-				Coord[] red = gb.canAttackMap(uoi);
-				g.setColor(new Color(250, 20, 20, 90));
-				for (Coord spot : red) {
-					g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+		if (gb.phase == GameBoard.Phase.PLAYER) {
+			if (gb.state == GameBoard.State.SELECT_DESTINATION) {
+				if (gb.isUnitOn(gb.map.marked)) {
+					Unit uoi = gb.unitOn(gb.map.marked);
+					Coord[] blue = gb.canMoveMap(uoi);
+					g.setColor(new Color(20, 20, 250, 90));
+					for (Coord spot : blue) {
+						g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+					}
+					
+					Coord[] red = gb.canAttackMap(uoi);
+					g.setColor(new Color(250, 20, 20, 90));
+					for (Coord spot : red) {
+						g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+					}
 				}
 			}
-		}
-		if (gb.state == GameBoard.State.SELECT_UNIT) {
-			if (gb.isUnitOn(gb.map.cursor)) {
-				Unit uoi = gb.unitOn(gb.map.cursor);
-				Coord[] blue = gb.canMoveMap(uoi);
-				g.setColor(new Color(20, 20, 250, 90));
-				for (Coord spot : blue) {
-					g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+			if (gb.state == GameBoard.State.SELECT_UNIT) {
+				if (gb.isUnitOn(gb.map.cursor)) {
+					Unit uoi = gb.unitOn(gb.map.cursor);
+					Coord[] blue = gb.canMoveMap(uoi);
+					g.setColor(new Color(20, 20, 250, 90));
+					for (Coord spot : blue) {
+						g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+					}
+					
+					Coord[] red = gb.canAttackMap(uoi);
+					g.setColor(new Color(250, 20, 20, 90));
+					for (Coord spot : red) {
+						g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+					}
 				}
-				
-				Coord[] red = gb.canAttackMap(uoi);
-				g.setColor(new Color(250, 20, 20, 90));
-				for (Coord spot : red) {
-					g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+			}
+			if (gb.state == GameBoard.State.SELECT_ACTION) {
+				if (gb.isUnitOn(gb.map.cursor)) {
+					Unit uoi = gb.unitOn(gb.map.cursor);
+					Coord[] red = gb.webOut(new Coord[]{uoi.position}, uoi.job.range);
+					g.setColor(new Color(250, 20, 20, 90));
+					for (Coord spot : red) {
+						g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+					}
 				}
 			}
 		}
 	}
 	
 	private void drawActionMenu(Graphics g) {
-		if (gb.state == GameBoard.State.SELECT_ACTION) {
-			g.setColor(Color.WHITE);
-			String[] arr = gb.actionMenu.toStrings();
-			g.setColor(Color.BLACK);
-			g.fillRect(400, 5, 50, 10 + arr.length * 10);
-			for (int i = 0; i < arr.length; i ++) {
+		if (gb.getPlayer(gb.phase).getClass() == new HumanPlayer().getClass()) {
+			if (gb.state == GameBoard.State.SELECT_ACTION) {
 				g.setColor(Color.WHITE);
-				if (gb.actionMenu.state == ActionMenu.State.Primary) {
-					if (gb.actionMenu.menu.selected == i) {
-						g.setColor(Color.CYAN);
+				String[] arr = gb.actionMenu.toStrings();
+				g.setColor(Color.BLACK);
+				g.fillRect(400, 5, 50, 10 + arr.length * 10);
+				for (int i = 0; i < arr.length; i ++) {
+					g.setColor(Color.WHITE);
+					if (gb.actionMenu.state == ActionMenu.State.Primary) {
+						if (gb.actionMenu.menu.selected == i) {
+							g.setColor(Color.CYAN);
+						}
 					}
+					g.drawString(arr[i], 400, 20 + (i * 10));
 				}
-				g.drawString(arr[i], 400, 20 + (i * 10));
+					
 			}
-				
 		}
 	}
 	

@@ -16,6 +16,8 @@ public class Unit {
     public int currHP;
     public boolean isDone;
     public TeamType team;
+    public boolean isDead;
+    public Coord offSet = new Coord(0, 0);
     
     public Unit(Coord pos, int level, int hp, int strength, int defense, int spd, Class type, TeamType side) {
         position = pos;
@@ -28,6 +30,7 @@ public class Unit {
         job = type;
         team = side;
         isDone = false;
+        isDead = false;
     }
 
     public void move(Coord c) {
@@ -53,7 +56,8 @@ public class Unit {
     
     public void inflictDamage(int i) {
     	currHP -= i;
-    	if (currHP < 0) {
+    	if (currHP <= 0) {
+    		isDead = true;
     		currHP = 0;
     	}
     }
@@ -96,7 +100,11 @@ public class Unit {
     
     public BufferedImage image() {
     	try {
-			return ImageIO.read(new File("src/" + team.name() + "/" + job.name() + ".PNG"));
+    		if (!isDone) {
+    			return ImageIO.read(new File("src/" + team.name() + "/" + job.name() + ".PNG"));
+    		} else {
+    			return ImageIO.read(new File("src/HASMOVED/" + job.name() + ".PNG"));
+    		}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -107,6 +115,37 @@ public class Unit {
     public String toString() {
         return job + " Lv: " + lvl + "\nHP: " + currHP + "/" + maxHP + "\nSTR: " + str +
             "\nDEF: " + def + "\nSPD: " + speed;
+    }
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Unit other = (Unit) obj;
+    	return this.toString().equals(other.toString());
+    }
+    
+    public boolean animate(int frame, ActionMenu.Option o, Unit target) {
+    	int frameNumber = frame % 30;
+    	Coord dir = position.getDirection(target.position);
+    	switch (o) {
+    	case Attack:
+    		if (frameNumber < 20) {
+    			offSet.sub(dir);
+    		} else {
+    			offSet.add(dir);
+    			offSet.add(dir);
+    		} 
+    		if (frameNumber == 29) {
+    			offSet.x = 0;
+    			return true;
+    		} else {
+    			return false;
+    		}
+    	}
+		return false;
     }
     
 }

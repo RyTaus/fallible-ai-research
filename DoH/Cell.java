@@ -28,6 +28,8 @@ public class Cell {
 				case SHRUB: return new Color(154, 205, 50);
 				case WATER: return new Color(30, 144, 255);
 				case WALL: return Color.BLACK;
+			default:
+				break;
 			
 			}
 			System.out.println("type of cell unspecified");
@@ -53,6 +55,14 @@ public class Cell {
 			return Type.WALL;
 		}
 		return Type.EMPTY;
+	}
+
+	public int moveAffect(Unit u) {
+		if (u.job.movePower >= type.movePower) {
+			return type.cost;
+		} else {
+			return 1000;
+		}
 	}
 	
 	
