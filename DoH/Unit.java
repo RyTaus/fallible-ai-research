@@ -41,7 +41,16 @@ public class Unit {
         // }
 
     }
-
+    
+    public Color getHealthColor() {
+        if (currHP/maxHP > .5) {
+            return Color.GREEN;
+        } else if (currHP/maxHP > .3) {
+            return new Color(255,255,51);
+        } 
+        return new Color(220,20,60);
+    }
+    
     public int expectedDamage(Unit enemy) {
         if (str - enemy.def <= 0) {
             return 0;
