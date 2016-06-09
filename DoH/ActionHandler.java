@@ -66,7 +66,7 @@ public class ActionHandler {
 		if (attacker.isDead || receiver.isDead) {
 			return true;
 		}
-		if (order.get(currRot).animate(currFrame, action, other(order.get(currRot)))) {
+		if (order.get(currRot).animate(currFrame, action.toAnimType(), other(order.get(currRot)))) {
 			switch (action) {
 			case Attack:
 				gb.attack(order.get(currRot), other(order.get(currRot)));

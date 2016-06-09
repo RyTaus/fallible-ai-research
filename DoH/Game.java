@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 
+
 public class Game extends JPanel{
 	public static void main(String[] args) {
 		
@@ -38,7 +39,7 @@ public class Game extends JPanel{
 		PlayerInput pi = new PlayerInput();
 		g.addKeyListener(pi);
         
-        final Timer timer = new Timer(60, null);
+        final Timer timer = new Timer(1000/60, null);
 		ActionListener listener = new ActionListener() {
 		    @Override 
 		    public void actionPerformed(ActionEvent e) {
@@ -89,6 +90,8 @@ public class Game extends JPanel{
 				case SELECT_DESTINATION:
 					gb.moveUnit(p.getUnit(), p.getDestination());
 					break;
+				case MOVE:
+					break;
 				case SELECT_ACTION:
 					gb.performAction(p.getUnit(), p.getAction(), p.getTarget());
 					break;
@@ -129,11 +132,13 @@ public class Game extends JPanel{
         int height = getHeight();           // height of window in pixels
 		
         drawMap(g);
-        
-        drawCursor(g, gb.map.cursor);
-        drawUnits(g);
         drawHighlights(g);
+        
+        drawCursor(g, gb.map.getRelativeCoord(gb.map.cursor));
+        drawUnits(g);
+
         drawActionMenu(g);
+        drawUnitInfo(g);
 	}
 	
 	private void drawCell(Graphics g, Color c, int x, int y) {
@@ -148,20 +153,30 @@ public class Game extends JPanel{
 	}
 	
 	private void drawMap(Graphics g) {
-		for (int col = 0; col < gb.map.width; col ++) {
-			for (int row = 0; row < gb.map.height; row ++) {
+		for (int col = gb.map.topLeft.x; col < gb.map.topLeft.x + gb.map.SCREEN_WIDTH; col ++) {
+			for (int row = gb.map.topLeft.y; row < gb.map.topLeft.y + gb.map.SCREEN_HEIGHT; row ++) {
 				Coord c = new Coord(col, row);
-				drawCell(g, gb.map.getCell(c).type.img(), W * col, H * row); 
+				Coord drawLoc = gb.map.getRelativeCoord(c);
+				drawCell(g, gb.map.getCell(c).type.img(), W * drawLoc.x, H * drawLoc.y); 
 	        }
 	    }
 	}
 	
 	private void drawUnits(Graphics g) {
+		Coord relPos;
 		for (Unit u : gb.player.units) {
-			g.drawImage(u.image(), u.position.x * W + 4 + u.offSet.x, u.position.y * H + 4 + u.offSet.y, null);
+			relPos = gb.map.getRelativeCoord(u.position);
+			if (relPos.y >= 0 && relPos.y < gb.map.SCREEN_HEIGHT && relPos.x >= 0 && relPos.x < gb.map.SCREEN_WIDTH) {
+				g.drawImage(u.image(), relPos.x * W + 4 + u.offSet.x, relPos.y * H + 4 + u.offSet.y, null);
+				drawHealthBar(g, u);
+			}
 		}
 		for (Unit u : gb.enemy.units) {
-			g.drawImage(u.image(), u.position.x * W + 4 + u.offSet.x, u.position.y * H + 4 + u.offSet.y, null);
+			relPos = gb.map.getRelativeCoord(u.position);
+			if (relPos.y >= 0 && relPos.y < gb.map.SCREEN_HEIGHT && relPos.x >= 0 && relPos.x < gb.map.SCREEN_WIDTH) {
+				g.drawImage(u.image(), relPos.x * W + 4 + u.offSet.x, relPos.y * H + 4 + u.offSet.y, null);
+				drawHealthBar(g, u);
+			}
 		}
 	}
 	
@@ -170,32 +185,46 @@ public class Game extends JPanel{
 			if (gb.state == GameBoard.State.SELECT_DESTINATION) {
 				if (gb.isUnitOn(gb.map.marked)) {
 					Unit uoi = gb.unitOn(gb.map.marked);
-					Coord[] blue = gb.canMoveMap(uoi);
+					Coord[] blue = gb.canMoveMapVisual(uoi);
+					Coord t;
 					g.setColor(new Color(20, 20, 250, 90));
 					for (Coord spot : blue) {
-						g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+						t = gb.map.getRelativeCoord(spot);
+						if (t.y >= 0 && t.y < gb.map.SCREEN_HEIGHT && t.x >= 0 && t.x < gb.map.SCREEN_WIDTH) {
+							g.fillRect(t.x * W, t.y * H, W - 1, H - 1);
+						}
 					}
 					
 					Coord[] red = gb.canAttackMap(uoi);
 					g.setColor(new Color(250, 20, 20, 90));
 					for (Coord spot : red) {
-						g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+						t = gb.map.getRelativeCoord(spot);
+						if (t.y >= 0 && t.y < gb.map.SCREEN_HEIGHT && t.x >= 0 && t.x < gb.map.SCREEN_WIDTH) {
+							g.fillRect(t.x * W, t.y * H, W - 1, H - 1);
+						}
 					}
 				}
 			}
 			if (gb.state == GameBoard.State.SELECT_UNIT) {
 				if (gb.isUnitOn(gb.map.cursor)) {
 					Unit uoi = gb.unitOn(gb.map.cursor);
-					Coord[] blue = gb.canMoveMap(uoi);
+					Coord[] blue = gb.canMoveMapVisual(uoi);
+					Coord t;
 					g.setColor(new Color(20, 20, 250, 90));
 					for (Coord spot : blue) {
-						g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+						t = gb.map.getRelativeCoord(spot);
+						if (t.y >= 0 && t.y < gb.map.SCREEN_HEIGHT && t.x >= 0 && t.x < gb.map.SCREEN_WIDTH) {
+							g.fillRect(t.x * W, t.y * H, W - 1, H - 1);
+						}
 					}
 					
 					Coord[] red = gb.canAttackMap(uoi);
 					g.setColor(new Color(250, 20, 20, 90));
 					for (Coord spot : red) {
-						g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+						t = gb.map.getRelativeCoord(spot);
+						if (t.y >= 0 && t.y < gb.map.SCREEN_HEIGHT && t.x >= 0 && t.x < gb.map.SCREEN_WIDTH) {
+							g.fillRect(t.x * W, t.y * H, W - 1, H - 1);
+						}
 					}
 				}
 			}
@@ -203,9 +232,13 @@ public class Game extends JPanel{
 				if (gb.isUnitOn(gb.map.cursor)) {
 					Unit uoi = gb.unitOn(gb.map.cursor);
 					Coord[] red = gb.webOut(new Coord[]{uoi.position}, uoi.job.range);
+					Coord t;
 					g.setColor(new Color(250, 20, 20, 90));
 					for (Coord spot : red) {
-						g.fillRect(spot.x * W, spot.y * H, W - 1, H - 1);
+						t = gb.map.getRelativeCoord(spot);
+						if (t.y >= 0 && t.y < gb.map.SCREEN_HEIGHT && t.x >= 0 && t.x < gb.map.SCREEN_WIDTH) {
+							g.fillRect(t.x * W, t.y * H, W - 1, H - 1);
+						}
 					}
 				}
 			}
@@ -233,5 +266,31 @@ public class Game extends JPanel{
 		}
 	}
 	
+	private void drawHealthBar(Graphics g, Unit u) {
+		Coord relPos = gb.map.getRelativeCoord(u.position);
+		g.setColor(Color.BLACK);
+		g.fillRoundRect(relPos.x * W + u.offSet.x, relPos.y * H -5 + u.offSet.y, 40, 5, 3, 3);
+		g.setColor(Color.GREEN);
+		g.fillRoundRect(relPos.x * W + u.offSet.x, relPos.y * H -5 + u.offSet.y,
+				(int) Math.floor(40 * ((float)u.currHP / (float)u.maxHP)), 5, 3, 3);
+	}
 	
+	private void drawUnitInfo(Graphics g) {
+		if (gb.getPlayer(gb.phase).getClass() == new HumanPlayer().getClass()) {
+			if (gb.state == GameBoard.State.SELECT_UNIT) {
+				if (gb.isUnitOn(gb.map.cursor)) {
+					Unit uoi = gb.unitOn(gb.map.cursor);
+					int left = 400;
+					int top = 5;
+					g.setColor(new Color(250, 250, 250, 120));
+					g.fillRect(left, top, 120, 120);
+					g.setColor(Color.BLACK);
+					g.drawString(uoi.job.name(), left + 10, top + 20);
+					g.drawString(uoi.currHP + "/" + uoi.maxHP, left + 10, top + 40);
+				
+				}
+
+			}
+		}
+	}
 }

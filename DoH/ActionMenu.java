@@ -3,7 +3,16 @@
 public class ActionMenu {
 	public enum Option {
 		Attack,
-		Wait
+		Wait;
+		
+		public AnimationType toAnimType() {
+			switch (this) {
+			case Attack:
+				return AnimationType.ATTACK;
+			}
+			System.out.println("toAnimType asked for non anim option");
+			return AnimationType.WAIT;
+		}
 	}
 	
 	public enum State {

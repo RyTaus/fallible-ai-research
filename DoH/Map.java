@@ -25,12 +25,12 @@ public class Map {
         map = readFile(fileName);
         width = map.length;
         height = map[0].length;
-        cursor = new Coord(2, 4);
-        marked = new Coord(2, 4);
-        topLeft = new Coord(2,2);
-        SCREEN_WIDTH = 3;
-        SCREEN_HEIGHT = 3;
-        MARGIN = 1;
+        cursor = new Coord(3, 3);
+        marked = new Coord(3, 3);
+        topLeft = new Coord(0,0);
+        SCREEN_WIDTH = 8;
+        SCREEN_HEIGHT = 8;
+        MARGIN = 2;
     }
 
     public Coord getRelativeCoord(Coord c) {
@@ -99,17 +99,21 @@ public class Map {
         Coord nc = new Coord(newX, newY);
         Coord scrCurs = getRelativeCoord(nc);
 
-        if (scrCurs.y >= SCREEN_HEIGHT && (topLeft.y + SCREEN_HEIGHT) <= height) {
+        if (scrCurs.y >= SCREEN_HEIGHT - MARGIN && (topLeft.y + SCREEN_HEIGHT) < height) {
             topLeft.y += 1;
-        } else if (scrCurs.x >= SCREEN_WIDTH && (topLeft.x + SCREEN_WIDTH) <= width) {
+        } else if (scrCurs.x >= SCREEN_WIDTH - MARGIN && (topLeft.x + SCREEN_WIDTH) < width) {
             topLeft.x += 1;
-        } else if (scrCurs.y < topLeft.y && (topLeft.y - 1) <= 0) {
+        } else if (scrCurs.y < MARGIN && (topLeft.y - 1) >= 0) {
             topLeft.y -= 1;
-        } else if (scrCurs.x < topLeft.x && (topLeft.x - 1) <= 0) {
-            topLeft.y -= 1;
+        } else if (scrCurs.x < MARGIN && (topLeft.x - 1) >= 0) {
+            topLeft.x -= 1;
         }
 
         cursor.moveTo(nc);
+        System.out.println(cursor);
+        System.out.println(topLeft);
+        System.out.println(getRelativeCoord(cursor));
+        System.out.println("____________");
     }
     
 }

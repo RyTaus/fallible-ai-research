@@ -3,7 +3,8 @@ public enum Direction {
 	UP,
 	DOWN,
 	LEFT,
-	RIGHT;
+	RIGHT,
+	STAY;
 	
 	public Coord toCoord() {
 		if (this == Direction.UP) {

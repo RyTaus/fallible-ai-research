@@ -17,7 +17,9 @@ public class Unit {
     public boolean isDone;
     public TeamType team;
     public boolean isDead;
+    
     public Coord offSet = new Coord(0, 0);
+    public int animNumber = 0;
     
     public Unit(Coord pos, int level, int hp, int strength, int defense, int spd, Class type, TeamType side) {
         position = pos;
@@ -127,11 +129,11 @@ public class Unit {
     	return this.toString().equals(other.toString());
     }
     
-    public boolean animate(int frame, ActionMenu.Option o, Unit target) {
+    public boolean animate(int frame, AnimationType o, Unit target) {
     	int frameNumber = frame % 30;
     	Coord dir = position.getDirection(target.position);
     	switch (o) {
-    	case Attack:
+    	case ATTACK:
     		if (frameNumber < 20) {
     			offSet.sub(dir);
     		} else {
@@ -139,14 +141,26 @@ public class Unit {
     			offSet.add(dir);
     		} 
     		if (frameNumber == 29) {
-    			offSet.x = 0;
+    			offSet = new Coord(0, 0);
     			return true;
-    		} else {
-    			return false;
     		}
     	}
 		return false;
     }
+
+	public boolean animateWalk(Direction direction) {
+		offSet.add(direction.toCoord());
+		offSet.add(direction.toCoord());
+		offSet.add(direction.toCoord());
+		offSet.add(direction.toCoord());
+		animNumber +=1;
+		if (animNumber == 10) {
+			animNumber = 0;
+			offSet = new Coord(0, 0);
+			return true;
+		}
+		return false;
+	}
     
 }
 

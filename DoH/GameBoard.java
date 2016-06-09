@@ -16,7 +16,7 @@ public class GameBoard {
 		SELECT_UNIT,
 		SELECT_DESTINATION,
 		SELECT_ACTION,
-		BATTLE
+		BATTLE, MOVE
 		
 	}	
 	
@@ -29,6 +29,7 @@ public class GameBoard {
 	
 	public ActionMenu actionMenu;
 	public ActionHandler actionHandler;
+	public MovementHandler movementHandler;
 	
 	public Phase phase = Phase.PLAYER;
 	public State state = State.SELECT_UNIT;
@@ -87,6 +88,32 @@ public class GameBoard {
 		}
 	}
 	
+	public ArrayList<Direction> getPathTo(Unit u, Coord d) {
+		ArrayList<Direction> path = new ArrayList<Direction>();
+		Coord dist = u.position.getDirection(d);
+		while (dist.x < 0) {
+			path.add(Direction.RIGHT);
+			dist.x += 1;
+		}
+		while (dist.x > 0) {
+			path.add(Direction.LEFT);
+			dist.x -= 1;
+		}
+		while (dist.y < 0) {
+			path.add(Direction.DOWN);
+			dist.y += 1;
+		}
+		while (dist.y > 0) {
+			path.add(Direction.UP);
+			dist.y -= 1;
+		}
+		if (path.isEmpty()) {
+			path.add(Direction.STAY);
+		}
+		return path;
+		
+	}
+	
 	public void move(Direction dir) {
 		if (state == State.SELECT_UNIT || state == State.SELECT_DESTINATION) {
 			map.moveCursor(dir);
@@ -116,9 +143,9 @@ public class GameBoard {
 		} else if (state == State.SELECT_DESTINATION) {
 			Unit uoi = getTeam(phase).unitOn(map.marked);
 			if (Arrays.asList(canMoveMap(uoi)).contains(map.cursor)) {
-				uoi.move(map.cursor);
-				actionMenu = new ActionMenu(canActOn(uoi, otherTeam(uoi.team)));
-				state = State.SELECT_ACTION;
+				actionMenu = new ActionMenu(canActOn(uoi, map.cursor, otherTeam(uoi.team)));
+				movementHandler = new MovementHandler(uoi, getPathTo(uoi, map.cursor));
+				state = State.MOVE;
 			} else {
 				state = State.SELECT_UNIT;
 			}
@@ -153,8 +180,8 @@ public class GameBoard {
 		
 	}
 
-	public Unit[] canActOn(Unit u, Team t) {
-		return canAttack(u, false);
+	public Unit[] canActOn(Unit u, Coord c, Team t) {
+		return canAttack(u, c);
 	}
 
 	public void back() {
@@ -183,10 +210,10 @@ public class GameBoard {
 		}
 	}
 	
-	public Unit[] canAttack(Unit u, boolean afterMove) {
+	public Unit[] canAttack(Unit u, Coord c) {
 		ArrayList<Unit> targets = new ArrayList<Unit>();
-		Coord[] starting = {u.position};
-		if (afterMove) {
+		Coord[] starting = {c};
+		if (c == null) {
 			starting = canMoveMap(u);
 		} 
 		ArrayList<Coord> attackable = new ArrayList<Coord>(Arrays.asList(webOut(starting, u.job.range)));
@@ -328,6 +355,67 @@ public class GameBoard {
 		return stockArr;
 	}
 
+	public Coord[] canMoveMapVisual(Unit u) {
+		if (u == null) {
+			//System.out.println("canmovemap for null");
+			return new Coord[]{};
+		}
+		TeamType t = u.team;
+		Coord start = u.position;
+		int moves = u.job.movement;
+		@SuppressWarnings("unchecked")
+		HashSet<Coord>[] possible = new HashSet[moves + 1];
+		Coord pa = start;
+		Coord n, e, s, w;
+		
+		for (int i = 0; i < possible.length; i ++) {
+			possible[i] = new HashSet<Coord>();
+		}
+		
+		possible[0].add(pa);
+		for (int i = 1; i < possible.length; i ++) {
+			for (Coord j : possible[i-1]) {
+				
+				n = j.getPointTo(Direction.UP);
+				e = j.getPointTo(Direction.RIGHT);
+				s = j.getPointTo(Direction.DOWN);
+				w = j.getPointTo(Direction.LEFT);
+				
+				if (n.y >= 0) {
+					if (i + map.getCell(n).moveAffect(u) < possible.length && checkToAdd(n, t)) {
+						possible[i + map.getCell(n).moveAffect(u)].add(n);
+					}
+				}
+				if (e.x < map.width) {
+					if (i + map.getCell(e).moveAffect(u) < possible.length && checkToAdd(e, t)) {
+						possible[i + map.getCell(e).moveAffect(u)].add(e);
+					}
+				}
+				if (s.y < map.height) {
+					if (i + map.getCell(s).moveAffect(u) < possible.length && checkToAdd(s, t)) {
+						possible[i + map.getCell(s).moveAffect(u)].add(s);
+					}
+				}
+				if (w.x >= 0) {
+					if (i + map.getCell(w).moveAffect(u) < possible.length && checkToAdd(w, t)) {
+						possible[i + map.getCell(w).moveAffect(u)].add(w);
+					}
+				}
+			}
+		}
+		for (int i = 0; i < possible.length - 1; i ++) {
+			possible[moves].addAll(possible[i]);
+		}
+		
+		
+		Iterator<Coord> iter = possible[moves].iterator();
+
+		possible[moves].add(start);
+		Coord[] stockArr = new Coord[possible[moves].size()];
+		stockArr = possible[moves].toArray(stockArr);
+		return stockArr;
+	}
+	
 	private boolean checkToAdd(Coord c, TeamType t) {
 		if (t == TeamType.PLAYER) {
 			return !enemy.isUnitOn(c);
@@ -378,9 +466,8 @@ public class GameBoard {
 	}
 
 	public void moveUnit(Unit unit, Coord destination) {
-		unit.move(destination);
-		unit.isDone = true;
-		state = State.SELECT_ACTION;
+		movementHandler = new MovementHandler(unit, getPathTo(unit, destination));
+		state = State.MOVE;
 		
 	}
 
@@ -405,6 +492,12 @@ public class GameBoard {
 				endTurn();
 				state = State.SELECT_UNIT;
 			}
+			break;
+		case MOVE:
+			if (movementHandler.update()) {
+				state = State.SELECT_ACTION;
+			}
+			break;
 		}
 		
 	}
