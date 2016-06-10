@@ -143,7 +143,7 @@ public class GameBoard {
 		} else if (state == State.SELECT_DESTINATION) {
 			Unit uoi = getTeam(phase).unitOn(map.marked);
 			if (Arrays.asList(canMoveMap(uoi)).contains(map.cursor)) {
-				actionMenu = new ActionMenu(canActOn(uoi, map.cursor, otherTeam(uoi.team)));
+				actionMenu = new ActionMenu(this, uoi, canActOn(uoi, map.cursor, otherTeam(uoi.team)));
 				movementHandler = new MovementHandler(uoi, getPathTo(uoi, map.cursor));
 				state = State.MOVE;
 			} else {
