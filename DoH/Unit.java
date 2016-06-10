@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class Unit {
         } 
         return new Color(220,20,60);
     }
-    
+
     public int expectedDamage(Unit enemy) {
         if (str - enemy.def <= 0) {
             return 0;
@@ -91,23 +92,6 @@ public class Unit {
 	public void setTeam(TeamType whichTeam) {
         team = whichTeam;
     }
-
-    // public Wait() {
-
-    // }
-
-    // public boolean isValidMove(int[] coord) {
-    //     int distanceAway = (coord[0] + coord[1] - 1) - (position[0] + position[1]);
-
-    //     if (job.movement >= distanceAway) {
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-    // public canAttack(int[] coord) {
-
-    // }
     
     public BufferedImage image() {
     	try {

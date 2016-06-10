@@ -63,7 +63,12 @@ public class ActionHandler {
 	
 	public boolean update() {
 		System.out.println("	" + currFrame);
-		if (attacker.isDead || receiver.isDead) {
+		if (attacker.isDead) {
+			gb.getTeam(attacker.team).units.remove(attacker);
+			return true;
+		}
+		if (receiver.isDead) {
+			gb.getTeam(receiver.team).units.remove(receiver);
 			return true;
 		}
 		if (order.get(currRot).animate(currFrame, action.toAnimType(), other(order.get(currRot)))) {
@@ -77,6 +82,13 @@ public class ActionHandler {
 			currRot +=1;
 		}
 		currFrame +=1;
+		
+		if (attacker.isDead) {
+			gb.getTeam(attacker.team).units.remove(attacker);
+		}
+		if (receiver.isDead) {
+			gb.getTeam(receiver.team).units.remove(receiver);
+		}
 		
 		return currRot == order.size();
 		

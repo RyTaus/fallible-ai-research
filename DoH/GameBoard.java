@@ -72,7 +72,7 @@ public class GameBoard {
 		}
 	}
 	
-	private Team getTeam(TeamType team) {
+	public Team getTeam(TeamType team) {
 		if (team == TeamType.PLAYER) {
 			return player;
 		} else {
@@ -89,28 +89,7 @@ public class GameBoard {
 	}
 	
 	public ArrayList<Direction> getPathTo(Unit u, Coord d) {
-		ArrayList<Direction> path = new ArrayList<Direction>();
-		Coord dist = u.position.getDirection(d);
-		while (dist.x < 0) {
-			path.add(Direction.RIGHT);
-			dist.x += 1;
-		}
-		while (dist.x > 0) {
-			path.add(Direction.LEFT);
-			dist.x -= 1;
-		}
-		while (dist.y < 0) {
-			path.add(Direction.DOWN);
-			dist.y += 1;
-		}
-		while (dist.y > 0) {
-			path.add(Direction.UP);
-			dist.y -= 1;
-		}
-		if (path.isEmpty()) {
-			path.add(Direction.STAY);
-		}
-		return path;
+		return new PathFinder(this, u).getPurePathTo(d);
 		
 	}
 	
@@ -315,22 +294,22 @@ public class GameBoard {
 				w = j.getPointTo(Direction.LEFT);
 				
 				if (n.y >= 0) {
-					if (i + map.getCell(n).moveAffect(u) < possible.length && checkToAdd(n, t)) {
+					if (i + map.getCell(n).moveAffect(u) < possible.length && checkToAdd(n, u)) {
 						possible[i + map.getCell(n).moveAffect(u)].add(n);
 					}
 				}
 				if (e.x < map.width) {
-					if (i + map.getCell(e).moveAffect(u) < possible.length && checkToAdd(e, t)) {
+					if (i + map.getCell(e).moveAffect(u) < possible.length && checkToAdd(e, u)) {
 						possible[i + map.getCell(e).moveAffect(u)].add(e);
 					}
 				}
 				if (s.y < map.height) {
-					if (i + map.getCell(s).moveAffect(u) < possible.length && checkToAdd(s, t)) {
+					if (i + map.getCell(s).moveAffect(u) < possible.length && checkToAdd(s, u)) {
 						possible[i + map.getCell(s).moveAffect(u)].add(s);
 					}
 				}
 				if (w.x >= 0) {
-					if (i + map.getCell(w).moveAffect(u) < possible.length && checkToAdd(w, t)) {
+					if (i + map.getCell(w).moveAffect(u) < possible.length && checkToAdd(w, u)) {
 						possible[i + map.getCell(w).moveAffect(u)].add(w);
 					}
 				}
@@ -382,22 +361,22 @@ public class GameBoard {
 				w = j.getPointTo(Direction.LEFT);
 				
 				if (n.y >= 0) {
-					if (i + map.getCell(n).moveAffect(u) < possible.length && checkToAdd(n, t)) {
+					if (i + map.getCell(n).moveAffect(u) < possible.length && checkToAdd(n, u)) {
 						possible[i + map.getCell(n).moveAffect(u)].add(n);
 					}
 				}
 				if (e.x < map.width) {
-					if (i + map.getCell(e).moveAffect(u) < possible.length && checkToAdd(e, t)) {
+					if (i + map.getCell(e).moveAffect(u) < possible.length && checkToAdd(e, u)) {
 						possible[i + map.getCell(e).moveAffect(u)].add(e);
 					}
 				}
 				if (s.y < map.height) {
-					if (i + map.getCell(s).moveAffect(u) < possible.length && checkToAdd(s, t)) {
+					if (i + map.getCell(s).moveAffect(u) < possible.length && checkToAdd(s, u)) {
 						possible[i + map.getCell(s).moveAffect(u)].add(s);
 					}
 				}
 				if (w.x >= 0) {
-					if (i + map.getCell(w).moveAffect(u) < possible.length && checkToAdd(w, t)) {
+					if (i + map.getCell(w).moveAffect(u) < possible.length && checkToAdd(w, u)) {
 						possible[i + map.getCell(w).moveAffect(u)].add(w);
 					}
 				}
@@ -416,12 +395,18 @@ public class GameBoard {
 		return stockArr;
 	}
 	
-	private boolean checkToAdd(Coord c, TeamType t) {
-		if (t == TeamType.PLAYER) {
-			return !enemy.isUnitOn(c);
-		} else {
-			return !player.isUnitOn(c);
+	public boolean checkToAdd(Coord c, Unit u) {
+		if (c.x >= 0 && c.x < map.width && c.y >= 0 && c.y < map.height) {
+			if (map.getCell(c).type.movePower > u.job.movePower) {
+				return false;
+			}
+			if (u.team == TeamType.PLAYER) {
+				return !enemy.isUnitOn(c);
+			} else {
+				return !player.isUnitOn(c);
+			}
 		}
+		return false;
 	}
 	
 	public int expectedDamage(Unit att, Coord attC, Unit rec) {

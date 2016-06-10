@@ -28,8 +28,8 @@ public class Map {
         cursor = new Coord(3, 3);
         marked = new Coord(3, 3);
         topLeft = new Coord(0,0);
-        SCREEN_WIDTH = 8;
-        SCREEN_HEIGHT = 8;
+        SCREEN_WIDTH = 9;
+        SCREEN_HEIGHT = 6;
         MARGIN = 2;
     }
 

@@ -27,11 +27,11 @@ public class Team {
 				return u;
 			}
 		}
-		System.out.println("No unit on");
+//		System.out.println("No unit on");
 		return null;
 	}
 	
-	
+
 	public void endTurn() {
 		for (Unit u : units) {
 			u.isDone = true;
