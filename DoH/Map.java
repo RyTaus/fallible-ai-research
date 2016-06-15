@@ -29,7 +29,7 @@ public class Map {
         marked = new Coord(3, 3);
         topLeft = new Coord(0,0);
         SCREEN_WIDTH = 9;
-        SCREEN_HEIGHT = 6;
+        SCREEN_HEIGHT = 9;
         MARGIN = 2;
     }
 

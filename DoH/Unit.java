@@ -44,9 +44,9 @@ public class Unit {
     }
     
     public Color getHealthColor() {
-        if (currHP/maxHP > .5) {
+        if ((double)currHP/(double)maxHP > .5) {
             return Color.GREEN;
-        } else if (currHP/maxHP > .3) {
+        } else if ((double)currHP/(double)maxHP > .3) {
             return new Color(255,255,51);
         } 
         return new Color(220,20,60);
@@ -141,13 +141,13 @@ public class Unit {
 		return false;
     }
 
-	public boolean animateWalk(Direction direction) {
+	public boolean animateWalk(Direction direction, GameBoard gb) {
 		offSet.add(direction.toCoord());
 		offSet.add(direction.toCoord());
 		offSet.add(direction.toCoord());
 		offSet.add(direction.toCoord());
 		animNumber +=1;
-		if (animNumber == 10) {
+		if (animNumber == position.y - gb.map.topLeft.y + 5) {
 			animNumber = 0;
 			offSet = new Coord(0, 0);
 			return true;

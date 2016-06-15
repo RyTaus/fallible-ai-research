@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -18,13 +20,16 @@ public class Game extends JPanel{
 		Unit p1 = new Unit(new Coord(2, 1), 3, 20, 8, 3, 5, Class.Gunner, TeamType.PLAYER);
 		Unit p2 = new Unit(new Coord(1, 3), 5, 22, 4, 6, 5, Class.Swordsman, TeamType.PLAYER);
 		
-		Unit e1 = new Unit(new Coord(6, 6), 3, 12, 8, 5, 2, Class.Swordsman, TeamType.ENEMY);
-		Unit e2 = new Unit(new Coord(5, 7), 5, 13, 6, 6, 6, Class.Gunner, TeamType.ENEMY);
+		Unit e1 = new Unit(new Coord(6, 2), 3, 12, 8, 5, 2, Class.Swordsman, TeamType.ENEMY);
+		Unit e2 = new Unit(new Coord(5, 2), 5, 13, 6, 6, 6, Class.Gunner, TeamType.ENEMY);
 		
 		Team p = new Team(new Unit[]{p1, p2}, TeamType.PLAYER);
 		Team e = new Team(new Unit[]{e1, e2}, TeamType.ENEMY);
 		
-		GameBoard b = new GameBoard(new Map("src/test"), p, e);
+		
+		Gene gene = new Gene();
+		
+		GameBoard b = new GameBoard(new Map("src/test"), p, e, new HumanPlayer(), new EnemyPlayer());
 		Game g = new Game(b);
 		
 		
@@ -114,8 +119,8 @@ public class Game extends JPanel{
 
 
 
-	public int W = 50;
-	public int H = 50;
+	public int W = 40;
+	public int H = 40;
 	public GameBoard gb;
 	public Game(GameBoard b) {
 		super();
@@ -128,15 +133,18 @@ public class Game extends JPanel{
 		
 	}
 	
-	public void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g1) {
+		Graphics2D g = (Graphics2D) g1;
 		super.paintComponent(g); 
         int width = getWidth();             // width of window in pixels
         int height = getHeight();           // height of window in pixels
 		
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         drawMap(g);
         drawHighlights(g);
         
         drawCursor(g, gb.map.getRelativeCoord(gb.map.cursor));
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         drawUnits(g);
 
         drawActionMenu(g);
@@ -148,7 +156,7 @@ public class Game extends JPanel{
 		Coord[] v = new Coord[4]; // tl, tr, br, bl
 		double x = co.x;
 		double y = co.y;
-		int offset = -W;
+		int offset = - 2 * W;
 		int offsetY = 0;
 		
 		Coord tl = new Coord((int) getX(x, y) + offset,
@@ -174,7 +182,7 @@ public class Game extends JPanel{
 	}
 	
 	private int Xmargin(double y) {
-		return (int) (30 * gb.map.height - y);
+		return (int) (30 * gb.map.height - 1 - y);
 	}
 	
 	private int Xwidth(double yi) {

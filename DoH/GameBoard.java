@@ -19,7 +19,7 @@ public class GameBoard {
 		BATTLE, MOVE
 		
 	}	
-	
+	public Phase winner = null;
 	public Map map;
 	public Team player;
 	public Team enemy;
@@ -34,10 +34,12 @@ public class GameBoard {
 	public Phase phase = Phase.PLAYER;
 	public State state = State.SELECT_UNIT;
 	
-	public GameBoard(Map m, Team p, Team e) {
+	public GameBoard(Map m, Team p, Team e, Player pPlayer, Player ePlayer) {
 		map = m;
 		player = p;
 		enemy = e;
+		playerController = pPlayer;
+		enemyController = ePlayer;
 	}
 	
 	public Player getPlayer(TeamType t) {
@@ -64,6 +66,14 @@ public class GameBoard {
 		}
 	}
 	
+	public Team getOtherTeam(Phase p) {
+		if (p == Phase.ENEMY) {
+			return player;
+		} else {
+			return enemy;
+		}
+	}
+	
 	private TeamType getTeamType(Phase p) {
 		if (p == Phase.PLAYER) {
 			return TeamType.PLAYER;
@@ -80,7 +90,7 @@ public class GameBoard {
 		}
 	}
 	
-	private Team otherTeam(TeamType team) {
+	public Team otherTeam(TeamType team) {
 		if (team == TeamType.PLAYER) {
 			return enemy;
 		} else {
@@ -123,7 +133,7 @@ public class GameBoard {
 			Unit uoi = getTeam(phase).unitOn(map.marked);
 			if (Arrays.asList(canMoveMap(uoi)).contains(map.cursor)) {
 				actionMenu = new ActionMenu(this, uoi, canActOn(uoi, map.cursor, otherTeam(uoi.team)));
-				movementHandler = new MovementHandler(uoi, getPathTo(uoi, map.cursor));
+				movementHandler = new MovementHandler(this, uoi, getPathTo(uoi, map.cursor));
 				state = State.MOVE;
 			} else {
 				state = State.SELECT_UNIT;
@@ -141,6 +151,12 @@ public class GameBoard {
 
 
 	private void endTurn() {
+		if (enemy.hasLost()) {
+			winner = Phase.PLAYER;
+		} else if (player.hasLost()) {
+			winner = Phase.ENEMY;
+		}
+		
 		if (phase == Phase.PLAYER) {
 			if (player.isDone()) {
 				phase = Phase.ENEMY;
@@ -451,7 +467,7 @@ public class GameBoard {
 	}
 
 	public void moveUnit(Unit unit, Coord destination) {
-		movementHandler = new MovementHandler(unit, getPathTo(unit, destination));
+		movementHandler = new MovementHandler(this, unit, getPathTo(unit, destination));
 		state = State.MOVE;
 		
 	}

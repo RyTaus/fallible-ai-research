@@ -53,5 +53,9 @@ public class Team {
 		return true;
 	}
 	
+	public boolean hasLost() {
+		return units.isEmpty();
+	}
+	
 	
 }
