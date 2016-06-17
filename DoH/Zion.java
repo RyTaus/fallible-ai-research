@@ -147,7 +147,7 @@ public class Zion implements Player{
 		
 		prCurr = prCurr / (double) m.troop.currHP;
 		
-		return new double[] { dMax, dCurr, gKill, valTarg, rMax, rCurr, pd, prCurr, potDDiff, gKilled, sKill, nClust, dist };
+		return new double[] { dMax, dCurr, gKill, valTarg, rMax, rCurr, pd, prCurr, potDDiff, gKilled, sKill, nClust, -dist };
 	}
 
 	private double getTargetValue() {

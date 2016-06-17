@@ -1,8 +1,9 @@
+import java.text.DecimalFormat;
 import java.util.Arrays;
 
 
 public class Gene implements Comparable{
-	double fitness;
+	double fitness = 0;
 	
 	
 	double dmgDealtMax = 20.1;
@@ -75,7 +76,23 @@ public class Gene implements Comparable{
 	}
 	
 	public String toString() {
-		return Arrays.toString(weights);
+		String s = "";
+		DecimalFormat format = new DecimalFormat("#.00");
+		for (double d : weights) {
+			s += format.format(d) + ", ";
+		}
+		return s + "  " + fitness;
+	}
+	
+	public Gene copy() {
+		double[] copy = new double[weights.length];
+		for (int i = 0; i < weights.length; i ++) {
+			copy[i] = weights[i];
+		}
+		Gene g = new Gene();
+		g.weights = copy;
+		g.fitness = this.fitness;
+		return g;
 	}
 	
 

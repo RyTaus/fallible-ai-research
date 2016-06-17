@@ -30,6 +30,8 @@ public class Map {
         topLeft = new Coord(0,0);
 //        SCREEN_WIDTH = 9;
 //        SCREEN_HEIGHT = 6;
+        Global.screenWidth = width;
+        Global.screenHeight = height;
         MARGIN = 2;
     }
 

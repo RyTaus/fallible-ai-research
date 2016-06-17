@@ -29,7 +29,8 @@ public class Game extends JPanel{
 		
 		Gene gene = new Gene();
 		
-		GameBoard b = new GameBoard(new Map("src/test"), p, e, new HumanPlayer(), new EnemyPlayer());
+//		GameBoard b = new GameBoard(new Map("src/test"), p, e, new HumanPlayer(), new EnemyPlayer());
+		GameBoard b = new Levels().getTestLevel(7);
 		Game g = new Game(b);
 		g.playGame(true);
 		
@@ -38,27 +39,29 @@ public class Game extends JPanel{
 	
 	public void playGame(boolean visual) {
 		Global.visual = visual;
-	    JFrame application = new JFrame();                            // the program itself
-	    application.setBackground(Color.DARK_GRAY);
-	    application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   // set frame to exit
-	                                                                  // when it is closed
-	    application.add(this);           
-	
-	
-	    application.setSize(500, 400);         // window is 500 pixels wide, 400 high
-	    application.setVisible(true); 
+		if (Global.visual) {
+		    JFrame application = new JFrame();                            // the program itself
+		    application.setBackground(Color.DARK_GRAY);
+		    application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   // set frame to exit
+		                                                                  // when it is closed
+		    application.add(this);           
+		
+		
+		    application.setSize(500, 400);         // window is 500 pixels wide, 400 high
+		    application.setVisible(true); 
+		}
 
 		PlayerInput pi = new PlayerInput();
 		this.addKeyListener(pi);
         
-        final Timer timer = new Timer(1000/60, null);
+        final Timer timer = new Timer(10/60, null);
 		ActionListener listener = new ActionListener() {
 		    @Override 
 		    public void actionPerformed(ActionEvent e) {
 		    	pi.addPressed();
 		        if (update(pi)) {
-		        	application.setVisible(false);
-		        	application.dispose();
+//		        	application.setVisible(false);
+//		        	application.dispose();
 		        	System.out.println(gb.toString());
 		        	isDone = true;
 		        	timer.stop();
@@ -69,16 +72,8 @@ public class Game extends JPanel{
 		};
 		timer.addActionListener(listener);
 		timer.start();
-//		while(true) {
-//	    	pi.addPressed();
-//	        if (update(pi)) {
-//	        	application.setVisible(false);
-//	        	application.dispose();
-//	        	break;
-//	        }
-//	        pi.reset();
-//	        
-//		}
+
+
 		while (!isDone) {
 			System.out.println(isDone);
 		}
@@ -188,7 +183,7 @@ public class Game extends JPanel{
 
         drawActionMenu(g);
         drawUnitInfo(g);
-        drawTerrainInfo(g);
+//        drawTerrainInfo(g);
 	}
 	
 	private Coord[] getShape(Coord co) {
@@ -221,7 +216,7 @@ public class Game extends JPanel{
 	}
 	
 	private int Xmargin(double y) {
-		return (int) (30 * gb.map.height - 1 - y);
+		return (int) (100 + 30 * gb.map.height - 1 - y);
 	}
 	
 	private int Xwidth(double yi) {

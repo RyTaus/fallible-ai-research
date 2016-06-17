@@ -58,7 +58,7 @@ public class ActionHandler {
 			break;
 		}
 		order = al;
-			
+		System.out.println(order);
 	}
 	
 	public boolean update() {
@@ -76,23 +76,23 @@ public class ActionHandler {
 			switch (action) {
 			case Attack:
 				gb.attack(order.get(currRot), other(order.get(currRot)));
+				System.out.println(order.get(currRot));
+				System.out.println(other(order.get(currRot)));
+				System.out.println("---------------");
 			}
-//			System.out.println(order.get(currRot));
-//			System.out.println(other(order.get(currRot)));
-//			System.out.println("---------------");
+			if (other(order.get(currRot)).isDead) {
+				if (attacker.isDead) {
+					gb.getTeam(attacker.team).units.remove(attacker);
+				}
+				if (receiver.isDead) {
+					gb.getTeam(receiver.team).units.remove(receiver);
+				}
+				return true;
+			}
 			currRot +=1;
 		}
 		currFrame +=1;
-		
-		if (attacker.isDead || receiver.isDead) {
-			if (attacker.isDead) {
-				gb.getTeam(attacker.team).units.remove(attacker);
-			}
-			if (receiver.isDead) {
-				gb.getTeam(receiver.team).units.remove(receiver);
-			}
-			return true;
-		}
+
 		
 		return currRot == order.size();
 		

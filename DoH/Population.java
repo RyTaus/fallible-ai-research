@@ -1,3 +1,6 @@
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,6 +16,7 @@ public class Population {
 	double mateAmount;
 	ArrayList<Gene> genes;
 	Levels levels = new Levels();
+	Gene bestSoFar = new Gene();
 	
 	public Population(int siz, double killThres, double mateThres, double muteThres, double mateAmoun) {
 		size = siz;
@@ -84,10 +88,9 @@ public class Population {
 		for (Unit u : gb.enemy.units) {
 			initHP += u.maxHP;
 		}
-		g.playGame(true);
-//		while(!g.isDone) {
-//			System.out.println(g.isDone);
-//		}
+		
+		g.playGame(false);
+		
 		int finalHP = 0;
 		for (Unit u : gb.enemy.units) {
 			finalHP += u.currHP;
@@ -113,15 +116,46 @@ public class Population {
 		for (int i = 0; i < genes.size(); i ++) {
 			System.out.println(genes.get(i).fitness);
 		}
+		
+		sort();
+		if (genes.get(genes.size() - 1).fitness > bestSoFar.fitness) {
+			bestSoFar = genes.get(genes.size() - 1).copy();
+		}
 	}
 	
 	private int randomInt(int min, int max) {
 		return new Random().nextInt(max - min) + min;
 	}
 	
+	public String toString() {
+		String s = "";
+		for (Gene g : genes) {
+			s += g.toString() + "\n";
+		}
+		s += "Best So Far: " + bestSoFar.toString() + "\n";
+		return s;
+	}
+	
 	public static void main(String[] args) {
-		Population pop = new Population(4, .2, .2, .2, .2);
-		pop.assess();
+		Population pop = new Population(2, .2, .2, .2, .2);
+		try {
+			PrintWriter writer = new PrintWriter("src/data", "UTF-8");
+			for (int i = 0; i < 2; i ++) {
+				writer.println("Gen " + i);
+				pop.assess();
+				writer.println(pop.toString());
+				pop.kill();
+				pop.mate();
+				pop.refreshPopulation();
+				pop.mutate();
+				pop.resetFitness();
+			}
+			writer.close();
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }
 

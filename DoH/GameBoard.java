@@ -157,14 +157,14 @@ public class GameBoard {
 		if (phase == Phase.PLAYER) {
 			if (player.isDone()) {
 				phase = Phase.ENEMY;
-//				System.out.println("Now " + phase + " Turn");
+				System.out.println("Now " + phase + " Turn");
 				player.refresh();
 				state = State.SELECT_UNIT;
 			} 
 		} else {
 			if (enemy.isDone()) {
 				phase = Phase.PLAYER;
-//				System.out.println("Now " + phase + " Turn");
+				System.out.println("Now " + phase + " Turn");
 				enemy.refresh();
 				state = State.SELECT_UNIT;
 				turn += 1;
@@ -445,14 +445,14 @@ public class GameBoard {
 		return dmg;	
 	}
 	
-	public void battle(Unit att, Unit rec) {
-		if (att.canAttack(rec.position)) {
-			rec.inflictDamage(expectedDamage(att, att.position, rec));
-		}
-		if (rec.canAttack(att.position)) {
-			att.inflictDamage(expectedDamage(rec, rec.position, att));
-		}
-	}
+//	public void battle(Unit att, Unit rec) {
+//		if (att.canAttack(rec.position)) {
+//			rec.inflictDamage(expectedDamage(att, att.position, rec));
+//		}
+//		if (rec.canAttack(att.position)) {
+//			att.inflictDamage(expectedDamage(rec, rec.position, att));
+//		}
+//	}
 	
 	public void attack(Unit att, Unit rec) {
 		rec.inflictDamage(expectedDamage(att, att.position, rec));
@@ -486,7 +486,6 @@ public class GameBoard {
 			unit.isDone = true;
 			state = State.SELECT_UNIT;
 		} else if (action == ActionMenu.Option.Attack) {
-			battle(unit, target);
 			actionHandler = new ActionHandler(unit, target, action, this);
 			state = State.BATTLE;
 		}
