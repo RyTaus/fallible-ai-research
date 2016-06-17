@@ -17,8 +17,8 @@ public class Map {
     public Coord marked;
 
     public Coord topLeft;
-    public int SCREEN_WIDTH;
-    public int SCREEN_HEIGHT;
+//    public int SCREEN_WIDTH;
+//    public int SCREEN_HEIGHT;
     public int MARGIN;
     
     public Map(String fileName) {
@@ -28,8 +28,8 @@ public class Map {
         cursor = new Coord(3, 3);
         marked = new Coord(3, 3);
         topLeft = new Coord(0,0);
-        SCREEN_WIDTH = 9;
-        SCREEN_HEIGHT = 9;
+//        SCREEN_WIDTH = 9;
+//        SCREEN_HEIGHT = 6;
         MARGIN = 2;
     }
 
@@ -99,9 +99,9 @@ public class Map {
         Coord nc = new Coord(newX, newY);
         Coord scrCurs = getRelativeCoord(nc);
 
-        if (scrCurs.y >= SCREEN_HEIGHT - MARGIN && (topLeft.y + SCREEN_HEIGHT) < height) {
+        if (scrCurs.y >= Global.screenHeight - MARGIN && (topLeft.y + Global.screenHeight) < height) {
             topLeft.y += 1;
-        } else if (scrCurs.x >= SCREEN_WIDTH - MARGIN && (topLeft.x + SCREEN_WIDTH) < width) {
+        } else if (scrCurs.x >= Global.screenWidth - MARGIN && (topLeft.x + Global.screenWidth) < width) {
             topLeft.x += 1;
         } else if (scrCurs.y < MARGIN && (topLeft.y - 1) >= 0) {
             topLeft.y -= 1;

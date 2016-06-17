@@ -57,5 +57,33 @@ public class Team {
 		return units.isEmpty();
 	}
 	
+	public Team clone() {
+		Team t = new Team(new Unit[]{}, teamType);
+		for (Unit unit : units) {
+			t.units.add(unit.clone());
+		}
+		return t;
+	}
+	
+	public boolean equals(Team t) {
+		if (units.size() != t.units.size()) {
+			return false;
+		}
+		for (int i = 0; i < units.size(); i ++) {
+			if (!units.get(i).equals(t.units.get(i))) {
+				return false;
+			}
+			
+		}
+		return true;
+	}
+	
+	public String toString() {
+		String s = "";
+		for (Unit u : units) {
+			s += u.toString();
+		}
+		return s;
+	}
 	
 }

@@ -1,12 +1,11 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -14,14 +13,15 @@ import javax.swing.Timer;
 
 
 
+
 public class Game extends JPanel{
 	public static void main(String[] args) {
 		
-		Unit p1 = new Unit(new Coord(2, 1), 3, 20, 8, 3, 5, Class.Gunner, TeamType.PLAYER);
-		Unit p2 = new Unit(new Coord(1, 3), 5, 22, 4, 6, 5, Class.Swordsman, TeamType.PLAYER);
+		Unit p1 = new Unit(new Coord(2, 1), 3, 20, 8, 11, 5, Class.Gunner, TeamType.PLAYER);
+		Unit p2 = new Unit(new Coord(1, 3), 5, 22, 4, 11, 5, Class.Swordsman, TeamType.PLAYER);
 		
-		Unit e1 = new Unit(new Coord(6, 2), 3, 12, 8, 5, 2, Class.Swordsman, TeamType.ENEMY);
-		Unit e2 = new Unit(new Coord(5, 2), 5, 13, 6, 6, 6, Class.Gunner, TeamType.ENEMY);
+		Unit e1 = new Unit(new Coord(6, 2), 3, 12, 8, 11, 2, Class.Swordsman, TeamType.ENEMY);
+		Unit e2 = new Unit(new Coord(5, 2), 5, 13, 6, 11, 6, Class.Gunner, TeamType.ENEMY);
 		
 		Team p = new Team(new Unit[]{p1, p2}, TeamType.PLAYER);
 		Team e = new Team(new Unit[]{e1, e2}, TeamType.ENEMY);
@@ -31,36 +31,60 @@ public class Game extends JPanel{
 		
 		GameBoard b = new GameBoard(new Map("src/test"), p, e, new HumanPlayer(), new EnemyPlayer());
 		Game g = new Game(b);
+		g.playGame(true);
 		
-		
-        JFrame application = new JFrame();                            // the program itself
-        application.setBackground(Color.DARK_GRAY);
-        application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   // set frame to exit
-                                                                      // when it is closed
-        application.add(g);           
 
+	}
+	
+	public void playGame(boolean visual) {
+		Global.visual = visual;
+	    JFrame application = new JFrame();                            // the program itself
+	    application.setBackground(Color.DARK_GRAY);
+	    application.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   // set frame to exit
+	                                                                  // when it is closed
+	    application.add(this);           
+	
+	
+	    application.setSize(500, 400);         // window is 500 pixels wide, 400 high
+	    application.setVisible(true); 
 
-        application.setSize(500, 400);         // window is 500 pixels wide, 400 high
-        application.setVisible(true); 
-        
 		PlayerInput pi = new PlayerInput();
-		g.addKeyListener(pi);
+		this.addKeyListener(pi);
         
         final Timer timer = new Timer(1000/60, null);
 		ActionListener listener = new ActionListener() {
 		    @Override 
 		    public void actionPerformed(ActionEvent e) {
 		    	pi.addPressed();
-		        g.update(pi);
+		        if (update(pi)) {
+		        	application.setVisible(false);
+		        	application.dispose();
+		        	System.out.println(gb.toString());
+		        	isDone = true;
+		        	timer.stop();
+
+		        }
 		        pi.reset();
 		    }
 		};
 		timer.addActionListener(listener);
 		timer.start();
-
+//		while(true) {
+//	    	pi.addPressed();
+//	        if (update(pi)) {
+//	        	application.setVisible(false);
+//	        	application.dispose();
+//	        	break;
+//	        }
+//	        pi.reset();
+//	        
+//		}
+		while (!isDone) {
+			System.out.println(isDone);
+		}
 	}
 	
-	public void update(PlayerInput pi) {
+	public boolean update(PlayerInput pi) {
 		// TODO Auto-generated method stub
 		if (gb.getPlayer(gb.phase).getClass() == new HumanPlayer().getClass()) {
 			if (pi.keyDown(KeyEvent.VK_W)) {
@@ -92,7 +116,7 @@ public class Game extends JPanel{
 			switch(gb.state) {
 				case SELECT_UNIT:
 					p.makeMove(gb, gb.getTeam(gb.phase));
-					gb.selectUnit();
+					gb.selectUnit(p.getUnit());
 					break;
 				case SELECT_DESTINATION:
 					gb.moveUnit(p.getUnit(), p.getDestination());
@@ -106,8 +130,20 @@ public class Game extends JPanel{
 					break;
 			}
 		}
-		gb.update();
-		repaint();
+
+		if (gb.phase == GameBoard.Phase.PLAYER) {
+			if (lastCopyTurn != gb.turn) {
+				if (copy.equals(gb.toString())) {
+					return true;
+				}
+				copy = gb.toString();
+			}
+			lastCopyTurn = gb.turn;
+		}
+		if (Global.visual) {
+			repaint();
+		}
+		return gb.update();
 //		System.out.println(gb.state);
 	}
 
@@ -122,6 +158,9 @@ public class Game extends JPanel{
 	public int W = 40;
 	public int H = 40;
 	public GameBoard gb;
+	public String copy = "qwre";
+	public int lastCopyTurn = -1;
+	public boolean isDone = false;
 	public Game(GameBoard b) {
 		super();
 		gb = b;
@@ -176,7 +215,7 @@ public class Game extends JPanel{
 	}	
 	
 	private int getY(double yi) {
-		double yMax = gb.map.SCREEN_HEIGHT;
+		double yMax = Global.screenHeight;
 		double y = yi;
 		return (int) ((y * H) - (Math.floor(yMax/ H) * (y)));
 	}
@@ -187,14 +226,14 @@ public class Game extends JPanel{
 	
 	private int Xwidth(double yi) {
 //		return (int) (W * .5 + (W * .5 * y));
-		double yMax = gb.map.SCREEN_HEIGHT;
+		double yMax = Global.screenHeight;
 		double perY = 2;
 		double y = yMax - 1 - yi;
 		return (int) ((perY * y) - W);
 	}
 	
 	private double X(double x) {
-		return (gb.map.SCREEN_WIDTH/ 2) - x;
+		return (Global.screenHeight/ 2) - x;
 	}
 	
 	private int getX(double xi, double yi) {
@@ -230,8 +269,8 @@ public class Game extends JPanel{
 	}
 	
 	private void drawMap(Graphics g) {
-		for (int col = gb.map.topLeft.x; col < gb.map.topLeft.x + gb.map.SCREEN_WIDTH; col ++) {
-			for (int row = gb.map.topLeft.y; row < gb.map.topLeft.y + gb.map.SCREEN_HEIGHT; row ++) {
+		for (int col = gb.map.topLeft.x; col < gb.map.topLeft.x + Global.screenWidth; col ++) {
+			for (int row = gb.map.topLeft.y; row < gb.map.topLeft.y + Global.screenHeight; row ++) {
 				Coord c = new Coord(col, row);
 				Coord drawLoc = gb.map.getRelativeCoord(c);
 				drawCell(g, gb.map.getCell(c).type.img(), new Coord(drawLoc.x, drawLoc.y)); 
@@ -243,23 +282,44 @@ public class Game extends JPanel{
 	}
 	
 	private void drawUnits(Graphics g) {
-		Coord relPos;
+		Coord tl;
+		Coord br;
+		int x;
+		int y;
+		int width;
+		int height;
 		for (Unit u : gb.player.units) {
-			relPos = gb.map.getRelativeCoord(u.position);
-			if (relPos.y >= 0 && relPos.y < gb.map.SCREEN_HEIGHT && relPos.x >= 0 && relPos.x < gb.map.SCREEN_WIDTH) {
-				relPos = getShape(relPos)[0];
-				g.drawImage(u.image(), relPos.x + u.offSet.x, relPos.y + u.offSet.y, null);
+			tl = gb.map.getRelativeCoord(u.position);
+			br = gb.map.getRelativeCoord(u.position).getPointTo(Direction.DOWN).getPointTo(Direction.RIGHT);
+			Coord pos = gb.map.getRelativeCoord(u.position);
+			if (tl.y >= 0 && tl.y < Global.screenHeight && tl.x >= 0 && tl.x < Global.screenWidth) {
+				Coord[] p = getShape(tl);
+				tl = getShape(tl)[0];
+				x = (p[0].x + p[3].x) / 2;
+				y = p[0].y;
+				width = (int) (((p[1].x + p[2].x) / 2 - (p[0].x + p[3].x) / 2));
+				double ratio = (double)width / u.image().getWidth();
+				height = (int) (u.image().getHeight() * ratio);
+				g.drawImage(u.image().getScaledInstance(width, height, Image.SCALE_SMOOTH), x + u.offSet.x, y + u.offSet.y, null);
 				drawHealthBar(g, u);
 			}
 		}
 		for (Unit u : gb.enemy.units) {
-			relPos = gb.map.getRelativeCoord(u.position);
-			if (relPos.y >= 0 && relPos.y < gb.map.SCREEN_HEIGHT && relPos.x >= 0 && relPos.x < gb.map.SCREEN_WIDTH) {
-				relPos = getShape(relPos)[0];
-				g.drawImage(u.image(), relPos.x + u.offSet.x, relPos.y + u.offSet.y, null);
+			tl = gb.map.getRelativeCoord(u.position);
+			if (tl.y >= 0 && tl.y < Global.screenHeight && tl.x >= 0 && tl.x < Global.screenWidth) {
+				tl = getShape(tl)[0];
+				g.drawImage(u.image(), tl.x + u.offSet.x, tl.y + u.offSet.y, null);
 				drawHealthBar(g, u);
 			}
 		}
+	}
+	
+	private int min(int a, int b) {
+		return (a < b) ? a : b;
+	}
+	
+	private int max(int a, int b) {
+		return (a > b) ? a : b;
 	}
 	
 	private void drawHighlights(Graphics g) {
@@ -281,7 +341,7 @@ public class Game extends JPanel{
 				for (Coord spot : blue) {
 					t = gb.map.getRelativeCoord(spot);
 					Coord[] cs = getShape(t);
-					if (t.y >= 0 && t.y < gb.map.SCREEN_HEIGHT && t.x >= 0 && t.x < gb.map.SCREEN_WIDTH) {
+					if (t.y >= 0 && t.y < Global.screenHeight && t.x >= 0 && t.x < Global.screenWidth) {
 						g.fillPolygon(new int[]{cs[0].x,  cs[1].x,  cs[2].x, cs[3].x}, 
 								new int[]{cs[0].y,  cs[1].y,  cs[2].y, cs[3].y}, 4);
 					}
@@ -292,7 +352,7 @@ public class Game extends JPanel{
 				for (Coord spot : red) {
 					t = gb.map.getRelativeCoord(spot);
 					Coord[] cs = getShape(t);
-					if (t.y >= 0 && t.y < gb.map.SCREEN_HEIGHT && t.x >= 0 && t.x < gb.map.SCREEN_WIDTH) {
+					if (t.y >= 0 && t.y < Global.screenHeight && t.x >= 0 && t.x < Global.screenWidth) {
 						g.fillPolygon(new int[]{cs[0].x,  cs[1].x,  cs[2].x, cs[3].x}, 
 								new int[]{cs[0].y,  cs[1].y,  cs[2].y, cs[3].y}, 4);
 					}
@@ -307,7 +367,7 @@ public class Game extends JPanel{
 					for (Coord spot : red) {
 						t = gb.map.getRelativeCoord(spot);
 						Coord[] cs = getShape(t);
-						if (t.y >= 0 && t.y < gb.map.SCREEN_HEIGHT && t.x >= 0 && t.x < gb.map.SCREEN_WIDTH) {
+						if (t.y >= 0 && t.y < Global.screenHeight && t.x >= 0 && t.x < Global.screenWidth) {
 							g.fillPolygon(new int[]{cs[0].x,  cs[1].x,  cs[2].x, cs[3].x}, 
 									new int[]{cs[0].y,  cs[1].y,  cs[2].y, cs[3].y}, 4);
 						}
@@ -347,12 +407,12 @@ public class Game extends JPanel{
     private void drawActionMenu(Graphics g) {
         if (gb.getPlayer(gb.phase).getClass() == new HumanPlayer().getClass()) {
             if (gb.state == GameBoard.State.SELECT_ACTION) {
-                int top = (gb.map.SCREEN_HEIGHT) *H;
+                int top = (Global.screenHeight) *H;
                 int left = H * 4;
                 g.setColor(Color.WHITE);
                 String[] arr = gb.actionMenu.toStrings();
                 g.setColor(Color.BLACK);
-                g.fillRect(left, top, 80, 70);
+                g.fillRect(left, top, 80, 20 * arr.length);
                 for (int i = 0; i < arr.length; i ++) {
                     g.setColor(Color.WHITE);
                     if (gb.actionMenu.state == ActionMenu.State.Primary) {
@@ -360,7 +420,7 @@ public class Game extends JPanel{
                             g.setColor(Color.CYAN);
                         }
                     }
-                    g.drawString(arr[i], left + 2, top + 20*(i+1));
+                    g.drawString(arr[i], left + 2, top + 15 + 20*(i));
                 }  
             }
         }
@@ -379,7 +439,7 @@ public class Game extends JPanel{
                 	return;
                 }
                     int left = 0;
-                    int top = (gb.map.SCREEN_HEIGHT) *H;
+                    int top = (Global.screenHeight) *H;
                     g.setColor(new Color(250, 250, 250, 120));
                     g.fillRect(left, top, 140, 70);
                     g.setColor(Color.BLACK);
@@ -394,14 +454,14 @@ public class Game extends JPanel{
     }
 	
     private void drawTerrainInfo(Graphics g) {
-        int top = (gb.map.SCREEN_HEIGHT) *H;
+        int top = (Global.screenHeight) *H;
         int w = 80;
         g.setColor(new Color(250, 250, 250, 120));
-        g.fillRect((gb.map.SCREEN_WIDTH)*W - w, top, w, 70);
+        g.fillRect((Global.screenWidth)*W - w, top, w, 70);
         g.setColor(Color.BLACK);
-        g.drawString(gb.map.getCell(gb.map.cursor).type.toString(), (gb.map.SCREEN_WIDTH)*W - w + 8, top + 20);
-        g.drawString("AVD: " + gb.map.getCell(gb.map.cursor).type.avoid, (gb.map.SCREEN_WIDTH)*W - w + 8, top + 40);
-        g.drawString("DEF: " + gb.map.getCell(gb.map.cursor).type.defense, (gb.map.SCREEN_WIDTH)*W - w + 8, top + 60);
+        g.drawString(gb.map.getCell(gb.map.cursor).type.toString(), (Global.screenWidth)*W - w + 8, top + 20);
+        g.drawString("AVD: " + gb.map.getCell(gb.map.cursor).type.avoid, (Global.screenWidth)*W - w + 8, top + 40);
+        g.drawString("DEF: " + gb.map.getCell(gb.map.cursor).type.defense, (Global.screenWidth)*W - w + 8, top + 60);
 
     }
 }

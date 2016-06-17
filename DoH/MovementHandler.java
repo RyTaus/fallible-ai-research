@@ -14,6 +14,9 @@ public class MovementHandler {
 	}
 	
 	public boolean update() {
+//		if (!Global.visual) {
+//			return true;
+//		}
 		if (unit.animateWalk(path.get(currStep), g)) {
 			unit.move(unit.position.getPointTo(path.get(currStep)));
 			currStep ++;

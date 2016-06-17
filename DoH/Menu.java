@@ -33,7 +33,7 @@ public class Menu<T> {
 	}
 
 	public void option(Direction dir) {
-		System.out.println(selected + "/" + size());
+//		System.out.println(selected + "/" + size());
 		selected = ((selected + dir.toCoord().y) % (size()) + size()) % size();
 	}
 	

@@ -40,10 +40,10 @@ public class ActionMenu {
     public void move(Direction dir) {
         if (state == State.Primary) {
             menu.option(dir);
-            System.out.println(menu);
+//            System.out.println(menu);
         } else {
             targets.option(dir);
-            System.out.println(targets);
+//            System.out.println(targets);
         }
     }
     
@@ -81,7 +81,8 @@ public class ActionMenu {
         } else {
             return new String[] {targets.select().job.name(), 
                     "Lv: " + targets.select().lvl, "HP: " + targets.select().currHP + "/" + targets.select().maxHP,
-                    "Exp Dam: " + gb.expectedDamage(uoi, uoi.position, targets.select())};
+                    "Exp Dam: " + gb.expectedDamage(uoi, uoi.position, targets.select()), 
+                    "Exp Rec: " + gb.expectedRecDamage(uoi, uoi.position, targets.select())};
         }
     }
 

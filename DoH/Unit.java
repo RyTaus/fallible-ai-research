@@ -108,7 +108,7 @@ public class Unit {
     }
     
     public String toString() {
-        return job + " Lv: " + lvl + "\nHP: " + currHP + "/" + maxHP + "\nSTR: " + str +
+        return job + " Lv: " + lvl + "\n" + position + "\nHP: " + currHP + "/" + maxHP + "\nSTR: " + str +
             "\nDEF: " + def + "\nSPD: " + speed;
     }
     public boolean equals(Object obj) {
@@ -123,6 +123,9 @@ public class Unit {
     }
     
     public boolean animate(int frame, AnimationType o, Unit target) {
+//		if (!Global.visual) {
+//			return true;
+//		}
     	int frameNumber = frame % 30;
     	Coord dir = position.getDirection(target.position);
     	switch (o) {
@@ -142,6 +145,9 @@ public class Unit {
     }
 
 	public boolean animateWalk(Direction direction, GameBoard gb) {
+//		if (!Global.visual) {
+//			return true;
+//		}
 		offSet.add(direction.toCoord());
 		offSet.add(direction.toCoord());
 		offSet.add(direction.toCoord());
@@ -155,6 +161,11 @@ public class Unit {
 		return false;
 	}
     
+	public Unit clone() {
+		Unit u = new Unit(position, lvl, maxHP, str, def, speed, job, team);
+		u.currHP = currHP;
+		return u;
+	}
 }
 
 

@@ -60,7 +60,6 @@ public class Levels {
                 new Unit(new Coord(3, 1), 3, 20, 8, 4, 5, Class.Swordsman, TeamType.ENEMY),
                 new Unit(new Coord(2, 1), 3, 20, 8, 6, 5, Class.Swordsman, TeamType.ENEMY)}, TeamType.ENEMY));
         testBoards.add(new GameBoard(new Map("src/test3"), player.get(5), enemy.get(5), new HumanPlayer(), new EnemyPlayer()));
-        enemy.get(5).units.get(1).currHP = 5;
 
 
         player.add(new Team (new Unit[]{

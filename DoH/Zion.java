@@ -20,7 +20,7 @@ public class Zion implements Player{
 			for (Coord c : gb.canMoveMap(u)) {
 				temp = new Move(u, null, c, ActionMenu.Option.Wait, 0);
 				temp.moveScore = rateMove(gb, temp);
-				System.out.println("	" + temp);
+//				System.out.println("	" + temp);
 				if (temp.moveScore > move.moveScore || move.troop == null) {
 					move = temp;
 				}
@@ -28,14 +28,14 @@ public class Zion implements Player{
 				for (Unit target : gb.canAttack(u, c)) {
 					temp = new Move(u, target, c, ActionMenu.Option.Attack, 0);
 					temp.moveScore = rateMove(gb, temp);
-					System.out.println("	" + temp);
+//					System.out.println("	" + temp);
 					if (temp.moveScore > move.moveScore) {
 						move = temp;
 					}
 				}
 			}
 		}
-		System.out.println("----  " + move);
+//		System.out.println("----  " + move);
 		return move;
 	}
 
@@ -70,7 +70,7 @@ public class Zion implements Player{
                 availableTroops.add(troops.units.get(i));
             }
         }
-        System.out.println("          " + availableTroops.toString());
+//        System.out.println("          " + availableTroops.toString());
         return availableTroops;
     }
 
@@ -99,6 +99,7 @@ public class Zion implements Player{
 		double gKilled = 0;
 		double sKill = 0; //
 		double nClust = 0;
+		double dist = 10000;
 		
 		if (m.target == null) {
 			dMax = 0;
@@ -132,6 +133,10 @@ public class Zion implements Player{
 					pd += gb.expectedRecDamage(poss, poss.position, m.troop);
 					prCurr -= gb.expectedDamage(poss, poss.position, m.troop);
 				}
+				
+			}
+			if (u.position.distance(m.troop.position) < dist) {
+				dist = u.position.distance(m.troop.position);
 			}
 		}
 		for (Unit u : gb.getTeam(gb.phase).units) {
@@ -142,7 +147,7 @@ public class Zion implements Player{
 		
 		prCurr = prCurr / (double) m.troop.currHP;
 		
-		return new double[] { dMax, dCurr, gKill, valTarg, rMax, rCurr, pd, prCurr, potDDiff, gKilled, sKill, nClust };
+		return new double[] { dMax, dCurr, gKill, valTarg, rMax, rCurr, pd, prCurr, potDDiff, gKilled, sKill, nClust, dist };
 	}
 
 	private double getTargetValue() {

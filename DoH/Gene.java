@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 
 public class Gene implements Comparable{
 	double fitness;
@@ -21,9 +23,10 @@ public class Gene implements Comparable{
 	double stopKill;
 	
 	double numInCluster;
+	double distToEnemy;
 	
 	double[] weights = { dmgDealtMax, dmgDealtCurr, getKill, valOfTarget, 
-			dmgRecBattleMax, dmgRecBattleCurr, dmgPot, dmgRecCurr,  potDamageDiff, getKilled, stopKill, numInCluster };
+			dmgRecBattleMax, dmgRecBattleCurr, dmgPot, dmgRecCurr,  potDamageDiff, getKilled, stopKill, numInCluster, distToEnemy };
 	
 	public Gene() {
 		randomize();
@@ -71,12 +74,10 @@ public class Gene implements Comparable{
 		return (Math.random() * (max - min)) + min;
 	}
 	
-	
-	public static void main(String[] args) {
-		Gene g = new Gene();
-		System.out.println(g.dmgDealtMax);
-		System.out.println(g.weights[0]);
+	public String toString() {
+		return Arrays.toString(weights);
 	}
+	
 
 	@Override
 	public int compareTo(Object o) {

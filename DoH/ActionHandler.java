@@ -28,9 +28,9 @@ public class ActionHandler {
 		currFrame = 1;
 		
 		getOrder();
-		System.out.println(attacker);
-		System.out.println(receiver);
-		System.out.println("---------------");
+//		System.out.println(attacker);
+//		System.out.println(receiver);
+//		System.out.println("---------------");
 		
 	}
 	
@@ -62,7 +62,7 @@ public class ActionHandler {
 	}
 	
 	public boolean update() {
-		System.out.println("	" + currFrame);
+//		System.out.println("	" + currFrame);
 		if (attacker.isDead || receiver.isDead) {
 			if (attacker.isDead) {
 				gb.getTeam(attacker.team).units.remove(attacker);
@@ -77,9 +77,9 @@ public class ActionHandler {
 			case Attack:
 				gb.attack(order.get(currRot), other(order.get(currRot)));
 			}
-			System.out.println(order.get(currRot));
-			System.out.println(other(order.get(currRot)));
-			System.out.println("---------------");
+//			System.out.println(order.get(currRot));
+//			System.out.println(other(order.get(currRot)));
+//			System.out.println("---------------");
 			currRot +=1;
 		}
 		currFrame +=1;

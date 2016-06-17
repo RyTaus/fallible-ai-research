@@ -33,6 +33,7 @@ public class GameBoard {
 	
 	public Phase phase = Phase.PLAYER;
 	public State state = State.SELECT_UNIT;
+	int turn = 0;
 	
 	public GameBoard(Map m, Team p, Team e, Player pPlayer, Player ePlayer) {
 		map = m;
@@ -99,6 +100,7 @@ public class GameBoard {
 	}
 	
 	public ArrayList<Direction> getPathTo(Unit u, Coord d) {
+//		return new ArrayList<Direction>(Arrays.asList(new Direction[]{Direction.DOWN}));
 		return new PathFinder(this, u).getPurePathTo(d);
 		
 	}
@@ -151,25 +153,21 @@ public class GameBoard {
 
 
 	private void endTurn() {
-		if (enemy.hasLost()) {
-			winner = Phase.PLAYER;
-		} else if (player.hasLost()) {
-			winner = Phase.ENEMY;
-		}
 		
 		if (phase == Phase.PLAYER) {
 			if (player.isDone()) {
 				phase = Phase.ENEMY;
-				System.out.println("Now " + phase + " Turn");
+//				System.out.println("Now " + phase + " Turn");
 				player.refresh();
 				state = State.SELECT_UNIT;
 			} 
 		} else {
 			if (enemy.isDone()) {
 				phase = Phase.PLAYER;
-				System.out.println("Now " + phase + " Turn");
+//				System.out.println("Now " + phase + " Turn");
 				enemy.refresh();
 				state = State.SELECT_UNIT;
+				turn += 1;
 			} 
 		}
 		
@@ -460,9 +458,20 @@ public class GameBoard {
 		rec.inflictDamage(expectedDamage(att, att.position, rec));
 	}
 
-	public void selectUnit() {
+	public void selectUnit(Unit unit) {
 		// TODO Auto-generated method stub
-		state = State.SELECT_DESTINATION;
+		if (unit == null) {
+			if (phase == Phase.ENEMY) {
+				phase = Phase.PLAYER;
+			} else {
+				phase = Phase.ENEMY;
+			}
+			System.out.println("FUUUUUCK");
+			getOtherTeam(phase).refresh();
+			state = State.SELECT_UNIT;
+		} else {
+			state = State.SELECT_DESTINATION;
+		}
 		
 	}
 
@@ -485,7 +494,15 @@ public class GameBoard {
 		
 	}
 
-	public void update() {
+	public boolean update() {
+		if (enemy.hasLost()) {
+			winner = Phase.PLAYER;
+			return true;
+		} else if (player.hasLost()) {
+			winner = Phase.ENEMY;
+			return true;
+		}
+		
 		switch (state) {
 		case BATTLE:
 			if (actionHandler.update()) {
@@ -500,6 +517,23 @@ public class GameBoard {
 			}
 			break;
 		}
-		
+		if (enemy.hasLost()) {
+			winner = Phase.PLAYER;
+		} else if (player.hasLost()) {
+			winner = Phase.ENEMY;
+		}
+		return winner != null;
+	}
+	
+	public GameBoard clone() {
+		return new GameBoard(map, player.clone(), enemy.clone(), playerController, enemyController);
+	}
+	
+	public String toString() {
+		return player.toString() + enemy.toString();
+	}
+	
+	public boolean equals(GameBoard gb) {
+		return player.equals(gb.player) && enemy.equals(gb.enemy);
 	}
 }
