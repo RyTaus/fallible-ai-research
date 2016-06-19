@@ -60,6 +60,7 @@ public class Levels {
                 new Unit(new Coord(3, 1), 3, 20, 8, 4, 5, Class.Swordsman, TeamType.ENEMY),
                 new Unit(new Coord(2, 1), 3, 20, 8, 6, 5, Class.Swordsman, TeamType.ENEMY)}, TeamType.ENEMY));
         testBoards.add(new GameBoard(new Map("src/test3"), player.get(5), enemy.get(5), new HumanPlayer(), new EnemyPlayer()));
+        enemy.get(5).units.get(0).currHP = 5;
 
 
         player.add(new Team (new Unit[]{
@@ -70,19 +71,28 @@ public class Levels {
         testBoards.add(new GameBoard(new Map("src/test5"), player.get(6), enemy.get(6), new HumanPlayer(), new EnemyPlayer()));
     
         player.add(new Team (new Unit[]{
-                new Unit(new Coord(1, 1), 4, 20, 12, 5, 5, Class.Swordsman, TeamType.PLAYER),
-                new Unit(new Coord(2, 2), 4, 20, 0, 55, 5, Class.Swordsman, TeamType.PLAYER)}, TeamType.PLAYER));
+                new Unit(new Coord(1, 1), 4, 20, 12, 5, 5, Class.Swordsman, TeamType.PLAYER)}, TeamType.PLAYER));
         enemy.add(new Team(new Unit[]{
-                new Unit(new Coord(0, 1), 3, 20, 10, 4, 5, Class.Swordsman, TeamType.ENEMY),
-                new Unit(new Coord(0, 0), 3, 20, 0, 40, 5, Class.Swordsman, TeamType.ENEMY)}, TeamType.ENEMY));
+                new Unit(new Coord(0, 1), 3, 20, 10, 4, 5, Class.Swordsman, TeamType.ENEMY)}, TeamType.ENEMY));
         testBoards.add(new GameBoard(new Map("src/test4"), player.get(7), enemy.get(7), new HumanPlayer(), new EnemyPlayer()));
         player.get(7).units.get(0).currHP = 7;
         enemy.get(7).units.get(0).currHP = 10;
+
+        player.add(new Team (new Unit[]{
+                new Unit(new Coord(4, 0), 4, 20, 10, 4, 5, Class.Gunner, TeamType.PLAYER),
+                new Unit(new Coord(5, 0), 4, 20, 12, 7, 5, Class.Swordsman, TeamType.PLAYER)}, TeamType.PLAYER));
+        enemy.add(new Team(new Unit[]{
+                new Unit(new Coord(7, 3), 3, 20, 8, 4, 5, Class.Gunner, TeamType.ENEMY),
+                new Unit(new Coord(2, 0), 3, 20, 9, 4, 5, Class.Swordsman, TeamType.ENEMY),
+                new Unit(new Coord(0,2), 3, 20, 10, 5, 5, Class.Swordsman, TeamType.ENEMY),
+                new Unit(new Coord(0, 4), 3, 25, 12, 5, 5, Class.Swordsman, TeamType.ENEMY),
+                new Unit(new Coord(1, 4), 3, 20, 10, 4, 5, Class.Swordsman, TeamType.ENEMY)}, TeamType.ENEMY));
+        testBoards.add(new GameBoard(new Map("src/test8"), player.get(8), enemy.get(8), new HumanPlayer(), new EnemyPlayer()));
     }
     
     public GameBoard getTestLevel(int i) {
-    	Global.screenHeight = testBoards.get(i).map.height;
-    	Global.screenWidth = testBoards.get(i).map.width;
+        Global.screenHeight = testBoards.get(i).map.height;
+        Global.screenWidth = testBoards.get(i).map.width;
         return testBoards.get(i);
     }
 }
