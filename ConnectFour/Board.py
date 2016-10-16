@@ -148,13 +148,6 @@ class GameBoard:
             boardCopy.board[boardCopy.lastPosition[0]][boardCopy.lastPosition[1]] = piece
         return boardCopy.has_won(piece)
 
-
-    def cocks_to_block(self, piece):
-        cocksToBlock = [False for i in range(7)]
-        for i in range(7):
-            cocksToBlock[i] = (self.will_win_on_col(i, piece))
-        return cocksToBlock
-
     def check_for_trap(self, piece):
         otherPiece = {"X" : "O", "O" : "X"}
         opponentWins = [False for i in range(7)]
@@ -164,7 +157,6 @@ class GameBoard:
                 copy.place_piece(i)
             opponentWins[i] = copy.will_win_on_col(i, otherPiece[copy.pieces[copy.turnState]])
         return opponentWins
-
 
     def in_bounds(self, loc):
         return loc[0] < 0 or loc[0] >= self.width or loc[1] < 0 or loc[1] >= self.height
