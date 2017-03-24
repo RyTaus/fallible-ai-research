@@ -45,6 +45,14 @@ class GameBoard:
 
         return False
 
+    def poss_moves(self):
+        valid_moves = []
+        for i in range(3):
+            for j in range(3):
+                if self.board[i][j] == "-":
+                    valid_moves.append([i, j])
+        return valid_moves;
+
     def is_tie(self):
         for i in range(3):
             for j in range(3):
